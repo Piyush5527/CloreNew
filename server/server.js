@@ -1,0 +1,463 @@
+const express = require("express")
+const jwt = require("jsonwebtoken")
+const cors = require("cors")
+const mongoose = require("mongoose")
+const bodyParser = require("body-parser")
+const User = require('./models/user.models')
+const cookieParser = require("cookie-parser")
+const app = express();
+// const bcrypt = require("bcryptjs")
+const productdb = require('./models/product.models');
+const categorydb = require('./models/category.models');
+const subcategorydb = require('./models/sub_category.models');
+const branddb = require('./models/brand.models');
+const multer = require('multer')
+const bcrypt=require("bcrypt")
+const fs = require('fs')
+
+
+app.use(cors());
+app.use(express.json())
+app.use(cookieParser())
+app.use("/productImages",express.static("./productImages"));
+app.use(bodyParser.json());
+
+
+mongoose.connect('mongodb://localhost:27017/clore')
+
+async function comparePassword(plaintextPassword, hash) {
+    const result = await bcrypt.compare(plaintextPassword, hash);
+    return result;
+}
+
+//var storage = 
+
+const multerStorage = multer.diskStorage({
+    destination : function (req, file, callback) {
+        var dir = "./productImages";
+        callback(null, dir);
+    },
+
+    filename : function(req, file, callback){
+        callback(null, file.originalname);
+    }
+});
+
+const multerFilter = (req, file, cb) => {
+    if (file.mimetype.endsWith("image")) {
+      cb(null, true);
+    } else {
+      cb("Please upload only images.", false);
+    }
+  };    
+
+//var uploadImage = multer({storage : storage});
+
+const upload = multer({
+    storage: multerStorage
+    //fileFilter: multerFilter
+  });
+
+//const uploadFiles = upload.single("images");
+app.post('/api/register', async (req, res) => {
+    console.log(req.body);
+    let encPass=""
+    try {
+    await bcrypt.genSalt(10,(err,salt)=>{
+        bcrypt.hash(req.body.password,salt,function(err,hash){
+            encPass=hash
+            console.log(encPass)
+
+            User.create({
+                first_name : req.body.fname,
+                last_name  : req.body.lname,
+                phone : req.body.phone,
+                email : req.body.email,
+                password : encPass,
+                created_at : new Date(),
+                updated_at : new Date(),
+                street : null,
+                city : null,
+                state : null,
+                pincode : null,
+            })
+            
+        })
+    })
+        return res.json({status : 'ok'})
+    } 
+    catch (err) {
+        console.log(err)
+        return res.json({status : 'error'})
+    }
+    return res.json({status : 'ok'});
+})
+
+app.post('/api/login', async (req, res) => {
+    
+    const user = await User.findOne({
+        email : req.body.email, 
+        // password : req.body.password, 
+    })
+    passwordMatch=await comparePassword( req.body.password,user.password)
+    
+    console.log(passwordMatch)
+    if(user && passwordMatch) {
+        const token = jwt.sign({
+            // name : user.name,
+            email : user.email,
+        }, 'secret123') 
+
+        return res.json({ status : 'ok', user : token})
+    }else {
+        return res.json({ status : 'error', user : false})
+    }
+    
+    return res.json({status : 'ok'});
+    
+})
+
+// const uploadImages = (req, res, next) => {
+    
+//   };
+
+app.post('/api/addproduct', upload.single("image_path"), async (req, res) => {
+    console.log("Items",req.body); 
+    const {filename} = req.file;
+    //console.log("Images",req.files[0]);
+    // uploadFiles(req, res, err => {
+    //     if (err instanceof multer.MulterError) { // A Multer error occurred when uploading.
+    //       if (err.code === "LIMIT_UNEXPECTED_FILE") { // Too many images exceeding the allowed limit
+    //         console.log(err);
+    //       }
+    //     } else if (err) {
+    //       console.log(err);
+    //     }
+    
+    //     // Everything is ok.
+    //   });
+    // // console.log("FileName");
+    // console.log(req.files[0]);
+    
+    //const { product_name, category_id, sub_category_id, brand_id, price, small_desc, long_desc, image1, color, size, qty} = req.body
+    try {
+       
+        const addProduct = await productdb.create({
+            product_name : req.body.pname,
+            category_id : req.body.category_id,
+            sub_category_id : req.body.sub_category_id,
+            brand_id : req.body.brand_id,
+            price : req.body.price,
+            small_desc : req.body.small_desc,
+            long_desc : req.body.long_desc,
+            image1 : filename,
+            /*image2 : req.body.image2,
+            image3 : req.body.image3,
+            image4 : req.body.image4,*/
+            color : req.body.color,
+            qty : req.body.qty,
+            size : req.body.size
+        })
+        console.log(addProduct)
+        console.log("Product Added Successfully")
+        res.status(201).json(addProduct)
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(422).json("Error Found")
+    }
+})
+
+app.post('/api/addbrand', upload.single("image_path"),async (req, res) => {
+    console.log("In Add Brand",req.body); 
+    const {filename} = req.file;
+    console.log(filename);
+    //console.log(req.body.images);
+    // uploadFiles(req, res, err => {
+    //     if (err instanceof multer.MulterError) { // A Multer error occurred when uploading.
+    //       if (err.code === "LIMIT_UNEXPECTED_FILE") { // Too many images exceeding the allowed limit
+    //         console.log(err);
+    //       }
+    //     } else if (err) {
+    //       console.log(err);
+    //     }
+    
+    //     // Everything is ok.
+    //   });
+    try {
+       
+        const addBrand = await branddb.create({
+            brand_name : req.body.brand_name,
+            image_path : filename, 
+        })
+        
+        console.log("Brand Added Successfully")
+        res.status(201).json(addBrand)
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(422).json("Error Found")
+    }
+})
+
+app.get("/api/getproduct", async (req, res) => {
+    try {
+        const productdata = await productdb.find().populate('category_id sub_category_id brand_id');
+        res.status(201).json(productdata)
+        // console.log(userdata);
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.get("/api/getproductid/:id", async (req, res) => {
+    try {
+        const {id} = req.params; 
+        const productDataId = await productdb.findById({_id: id});
+        res.status(201).json(productDataId)
+        // console.log(userdata);
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.delete("/api/deleteproduct/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deleteProduct = await productdb.findByIdAndDelete({ _id: id })
+        // console.log(deletcategory);
+        res.status(201).json(deleteProduct);
+
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.patch("/api/updateproduct/:id", upload.single("image_path"), async (req, res) => {
+    try {
+        const { id } = req.params
+        const {filename} = req.file
+        console.log(filename)
+        console.log(req.body)
+        const updateProduct = await productdb.findByIdAndUpdate(id, {product_name : req.body.pname,
+            category_id : req.body.category_id,
+            sub_category_id : req.body.sub_category_id,
+            brand_id : req.body.brand_id,
+            price : req.body.price,
+            small_desc : req.body.small_desc,
+            long_desc : req.body.long_desc,
+            image1 : filename,
+            color : req.body.color,
+            qty : req.body.qty,
+            size : req.body.size}, {
+            new: true
+        })
+        // console.log("243 =>"+updateBrand);
+        res.status(201).json(updateProduct)
+    } catch (error) {
+        res.status(422).json(error)
+    }
+})
+
+app.get("/api/getbrand", async (req, res) => {
+    try {
+        const branddata = await branddb.find();
+        res.status(201).json(branddata)
+        // console.log(userdata);
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.get("/api/getbrandid/:id", async (req, res) => {
+    try {
+        const {id} = req.params; 
+        const branddataid = await branddb.findById({_id: id});
+        res.status(201).json(branddataid)
+        // console.log(userdata);
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.delete("/api/deletebrand/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletebrand = await branddb.findByIdAndDelete({ _id: id })
+        // console.log(deletcategory);
+        res.status(201).json(deletebrand);
+
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.patch("/api/updatebrand/:id", upload.single("image_path"), async (req, res) => {
+    try {
+
+        const { id } = req.params
+        const {filename} = req.file
+        console.log(filename)
+        const updateBrand = await branddb.findByIdAndUpdate(id, {brand_name : req.body.brand_name, image_path : filename}, {
+            new: true
+        })
+        // console.log("243 =>"+updateBrand);
+        res.status(201).json(updateBrand)
+    } catch (error) {
+        res.status(422).json(error)
+    }
+})
+
+app.post('/api/addcategory', async (req, res) => {
+    console.log(req.body); 
+
+    try {
+        const addCategory = await categorydb.create({
+            category_name : req.body.category_name, 
+        })
+        
+        console.log("Category Added Successfully")
+        res.status(201).json(addCategory)
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(422).json("Error Found")
+    }
+})
+
+app.get("/api/getcategory", async (req, res) => {
+    try {
+        const categorydata = await categorydb.find();
+        res.status(201).json(categorydata)
+        // console.log(userdata);
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.get("/api/getcategoryid/:id", async (req, res) => {
+    try {
+        console.log("In Category ID")
+        const {id} = req.params; 
+        const categorydataid = await categorydb.findById({_id: id});
+        res.status(201).json(categorydataid)
+        
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.delete("/api/deletecategory/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletecategory = await categorydb.findByIdAndDelete({ _id: id })
+      
+        res.status(201).json(deletecategory);
+
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.patch("/api/updatecategory/:id", async (req, res) => {
+    try {
+
+        const { id } = req.params
+
+        const updateCategory = await categorydb.findByIdAndUpdate(id, {category_name : req.body.category_name}, {
+            new: true
+        })
+        // console.log("243 =>"+updateBrand);
+        res.status(201).json(updateCategory)
+    } catch (error) {
+        res.status(422).json(error)
+    }
+})
+
+
+app.post('/api/addsubcategory', async (req, res) => {
+    console.log(req.body); 
+
+    try {
+        const addSubCategory = await subcategorydb.create({
+            sub_category_name : req.body.sub_category_name, 
+            category_id : req.body.category_id
+        })
+        
+        console.log("Sub Category Added Successfully")
+        res.status(201).json(addSubCategory)
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(422).json("Error Found")
+    }
+})
+
+app.delete("/api/deletesubcategory/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const subdeletecategory = await subcategorydb.findByIdAndDelete({ _id: id })
+      
+        res.status(201).json(subdeletecategory);
+
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.patch("/api/updatesubcategory/:id", async (req, res) => {
+    try {
+        console.log(req.body)
+        const { id } = req.params
+
+        const updateSubCategory = await subcategorydb.findByIdAndUpdate(id, {sub_category_name : req.body.sub_category_name, category_id : req.body.category_id}, {
+            new: true
+        })
+        // console.log("243 =>"+updateBrand);
+        res.status(201).json(updateSubCategory)
+    } catch (error) {
+        res.status(422).json(error)
+    }
+})
+
+app.get("/api/getsubcategoryid/:id", async (req, res) => {
+    try {
+        console.log("In Sub Category ID")
+        const {id} = req.params; 
+        const subcategorydataid = await subcategorydb.findById({_id: id});
+        res.status(201).json(subcategorydataid)
+        
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.get("/api/getsubcategory", async (req, res) => {
+    try {
+        const subcategorydata = await subcategorydb.find();
+        res.status(201).json(subcategorydata)
+        // console.log(userdata);
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.get("/api/getsubcategorywithcategory", async (req, res) => {
+    try {
+        const subcategorydata = await subcategorydb.find().populate('category_id');
+        res.status(201).json(subcategorydata)
+        // console.log(userdata);
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+
+
+app.listen(1337, ()=>{
+	console.log("Server is Started...")
+})
