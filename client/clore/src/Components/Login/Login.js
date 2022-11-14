@@ -24,7 +24,6 @@ const Login = () => {
 
       const data = await fetch("http://localhost:1337/api/login", {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json"
         },
@@ -37,9 +36,9 @@ const Login = () => {
       console.log(res)
       if (res.status === 'ok') {
         // alert("Login Successfully");
-        localStorage.setItem("usersdatatoken", JSON.stringify(res.user));
-
-        console.log(res.user)
+        localStorage.setItem("usersdatatoken", res.user);
+        console.log("User Data Token: ",localStorage.getItem("userdatatoken"));
+        
         navigate('/')
         //alert("done")
         setEmail("")

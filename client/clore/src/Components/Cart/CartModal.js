@@ -7,10 +7,6 @@ const CartModal = () => {
         <Fragment>
             <table class="table table-borderless">
                 <CartModalProduct/>
-                <CartModalProduct/>
-                <CartModalProduct/>
-                <CartModalProduct/>
-                <CartModalProduct/>
             </table>
         </Fragment>
     )

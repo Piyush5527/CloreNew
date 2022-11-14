@@ -30,6 +30,29 @@ const ShowProductDetail = () => {
         getProductById()
     }, [])
 
+    const addProductToCart = async (productId) => {
+        console.log(productId);
+
+        const token = localStorage.getItem('usersdatatoken');
+
+        const addToCart = await fetch(`http://localhost:1337/api/addtocart/${productId}`, {
+        method : "POST",
+        headers : {
+          "Content-Type" : "application/json",
+          "Authorization": token
+        }
+      })
+
+      const getRes = await addToCart.json();
+
+      if(getRes.status === 422 || !getRes){
+        console.log("error")
+      } else {
+        alert("Product Added in the Cart Successfully")
+      }
+
+    }
+
     return (
         <div>
             <h1>Product Details</h1>
@@ -40,6 +63,7 @@ const ShowProductDetail = () => {
             {list.small_desc}<br></br>
             {list.long_desc}<br></br>
             {list.color}<br></br>
+            <button onClick={()=>addProductToCart(list._id)}>Add to Cart</button>
         
       </div>
     )
