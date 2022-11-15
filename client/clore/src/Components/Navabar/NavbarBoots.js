@@ -14,7 +14,7 @@ const NavbarBoots = () => {
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
     const [userId, setUserId] = useState(null);
     useEffect(() => {
-        setUserId(JSON.parse(localStorage.getItem('usersdatatoken')));
+        setUserId(localStorage.getItem('usersdatatoken'));
         if (userId) {
             setIsUserLoggedIn(true);
             console.log("User Is logged in successfully");

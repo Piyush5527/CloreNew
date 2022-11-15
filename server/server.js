@@ -5,22 +5,36 @@ const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
 const User = require('./models/user.models')
 const cookieParser = require("cookie-parser")
+const session = require("express-session")
+const store = new session.MemoryStore();
 const app = express();
 // const bcrypt = require("bcryptjs")
 const productdb = require('./models/product.models');
 const categorydb = require('./models/category.models');
 const subcategorydb = require('./models/sub_category.models');
 const branddb = require('./models/brand.models');
+const cartdb = require('./models/cart.models');
 const multer = require('multer')
 const bcrypt=require("bcrypt")
 const fs = require('fs')
+const Skey = "soelshaikhshaikhsoelshaikhsoelab"
 
 
 app.use(cors());
 app.use(express.json())
 app.use(cookieParser())
-app.use("/productImages",express.static("./productImages"));
 app.use(bodyParser.json());
+
+app.use(
+    session({
+        resave : true,
+        saveUninitialized : true,
+        store : store,
+        secret : "secret123"})
+);
+
+app.use("/productImages",express.static("./productImages"));
+
 
 
 mongoose.connect('mongodb://localhost:27017/clore')
@@ -95,31 +109,153 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     
-    const user = await User.findOne({
+    const user1 = await User.findOne({
         email : req.body.email, 
         // password : req.body.password, 
     })
-    passwordMatch=await comparePassword( req.body.password,user.password)
+    passwordMatch=await comparePassword( req.body.password,user1.password)
     
-    console.log(passwordMatch)
-    if(user && passwordMatch) {
+    if(user1 && passwordMatch) {
         const token = jwt.sign({
             // name : user.name,
-            email : user.email,
-        }, 'secret123') 
+            _id : user1._id,
+            
+        }, Skey,
+        {expiresIn : "1h"});
 
+
+        
+        user1.tokens = user1.tokens.concat({token:token})
+        await user1.save()
+        
+    
         return res.json({ status : 'ok', user : token})
     }else {
         return res.json({ status : 'error', user : false})
     }
     
-    return res.json({status : 'ok'});
-    
 })
 
-// const uploadImages = (req, res, next) => {
+app.get("/api/user", async (req, res) => {
     
-//   };
+    try{
+        const token =  req.headers.authorization;
+        console.log(token)
+        const verifytoken = jwt.verify(token, Skey)
+        //console.log(verifytoken);
+        const rootUser = await User.findOne({_id:verifytoken._id})
+        console.log(rootUser);
+        if(!rootUser){
+            throw new Error("user not found")
+        }
+        return res.status(201).json(rootUser);
+    } catch (err) {
+        console.log(err)
+        res.status(422).json("Error Found")
+    }
+
+    
+});
+
+app.get("/api/getuserid/:id", async (req, res) => {
+    try{
+        const {id} = req.params
+        const user = await User.findById({_id : id});
+
+        if(user){
+            return res.status(201).json(user)
+        }else{
+            return res.status(422)
+        }
+    } catch(err){
+        console.log(err)
+        return res.status(422)
+    }
+});
+
+app.post("/api/addtocart/:productId", async (req, res)=>{
+    try{
+        const {productId} = req.params
+        console.log(productId)
+        const token =  req.headers.authorization;
+        console.log(token)
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+       
+        const rootProduct = await productdb.findOne({_id:productId})
+       
+        const currentCart = await cartdb.findOne({product_id : productId});
+
+        if(!currentCart){
+            const addToCart = await cartdb.create({
+                product_id : productId,
+                user_id : rootUser._id,
+                qty : 1,
+                total_amount : rootProduct.price
+            })
+
+            console.log(addToCart)
+            console.log("Product Added to Cart Successfully")
+            return res.status(201).json(addToCart)
+        } else {
+            const updateCart = await cartdb.updateOne({product_id : productId},
+                {qty : currentCart.qty+1, total_amount : (currentCart.qty+1)*rootProduct.price});
+
+            console.log(updateCart)
+            console.log("Product Updated in Cart Successfully")
+            return res.status(201).json(updateCart)
+        }
+        
+        
+        
+        
+    } catch (err){
+        console.log(err)
+    }
+});
+
+app.get("/api/getcartitems", async (req, res)=>{
+    try{
+        const token =  req.headers.authorization;
+        
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const cartItems = await cartdb.find({user_id : rootUser._id}).populate('product_id user_id')
+
+        console.log(cartItems.length)
+
+        res.status(201).json(cartItems)
+
+    }catch(err){
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.patch("/api/updateaddress/:id", async (req, res) => {
+    try {
+
+        const { id } = req.params
+
+        console.log(id)
+    
+        const updateAddress = await User.findByIdAndUpdate(id, {street : req.body.street, city : req.body.city, state : req.body.state, pincode : req.body.pincode}, {
+            new: true
+        })
+        // console.log("243 =>"+updateBrand);
+        res.status(201).json(updateAddress)
+    } catch (error) {
+        res.status(401).json(error)
+    }
+})
+
+app.get("/api/logout", (req, res) => {
+    req.session.destroy();
+    return res.json({status : 'ok'})
+});
 
 app.post('/api/addproduct', upload.single("image_path"), async (req, res) => {
     console.log("Items",req.body); 
@@ -172,18 +308,7 @@ app.post('/api/addbrand', upload.single("image_path"),async (req, res) => {
     console.log("In Add Brand",req.body); 
     const {filename} = req.file;
     console.log(filename);
-    //console.log(req.body.images);
-    // uploadFiles(req, res, err => {
-    //     if (err instanceof multer.MulterError) { // A Multer error occurred when uploading.
-    //       if (err.code === "LIMIT_UNEXPECTED_FILE") { // Too many images exceeding the allowed limit
-    //         console.log(err);
-    //       }
-    //     } else if (err) {
-    //       console.log(err);
-    //     }
     
-    //     // Everything is ok.
-    //   });
     try {
        
         const addBrand = await branddb.create({

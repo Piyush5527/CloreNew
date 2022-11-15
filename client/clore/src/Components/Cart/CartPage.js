@@ -13,16 +13,17 @@ const CartPage = () => {
         <table class="table">
           <thead>
             <tr>
-              <th scope="col">Remove</th>
               <th scope="col">Pics</th>
               <th scope="col">Product</th>
+              <th scope="col">Size</th>
               <th scope="col">Price</th>
               <th scope="col">Quantity</th>
               <th scope="col">Total</th>
+              <th scope="col">Remove</th>
             </tr>
           </thead>
           <tbody class="table-group-divider">
-            <CartProducts />
+            
             <CartProducts />
           </tbody>
         </table>

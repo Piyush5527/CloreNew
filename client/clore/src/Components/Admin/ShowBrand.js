@@ -47,7 +47,7 @@ const ShowBrand = () => {
 
   return (
     <div>
-      <NavLink to={"/AddBrand"}>Add Brand</NavLink><br></br>
+      <NavLink to={"/AddBrand"}>Brands</NavLink><br></br>
       {list.map((item)=>{
         return (<>
           <img variant="top" style={{ width: "100px", textAlign: "center", margin: "auto" , height:"100px" }} src={`http://localhost:1337/productImages/${item.image_path}`} className='mt-2' />

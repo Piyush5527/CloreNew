@@ -12,6 +12,7 @@ import Contact from './Components/Contact/Contact';
 import AddProduct from './Components/Admin/AddProduct';
 import CartPage from './Components/Cart/CartPage';
 import AccountPage from './Components/Account/AccountPage';
+
 import AddBrand from './Components/Admin/AddBrand';
 import ShowBrand from './Components/Admin/ShowBrand';
 import EditBrand from './Components/Admin/EditBrand';
@@ -24,6 +25,7 @@ import EditCategory from './Components/Admin/EditCategory';
 import ShowSubCategory from './Components/Admin/ShowSubCategory';
 import EditSubCategory from './Components/Admin/EditSubCategory';
 import ShowProductDetail from './Components/Shop/ShowProductDetail';
+import EditAddress from './Components/Account/EditAddress';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -33,6 +35,7 @@ root.render(
       <Route path="/About" element={<AboutUs></AboutUs>} />
       <Route path ="/Login" element={<Login></Login>} />
       <Route path ="/Account" element={<AccountPage></AccountPage>} />
+      <Route path ="/EditAddress/:id" element={<EditAddress />} />
       <Route path ="/Cart" element={<CartPage></CartPage>} />
       
       <Route path ="/AddProduct" element={<AddProduct />} />

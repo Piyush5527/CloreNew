@@ -2,8 +2,7 @@ import React from 'react'
 
 const AboutUs = () => {
   return (
-    <div>AboutUs
-    </div>
+    <div>I am In AboutUs</div>
   )
 }
 
