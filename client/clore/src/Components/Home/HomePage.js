@@ -8,8 +8,8 @@ export const HomePage = () => {
   return (
     <Fragment>
         <SliderComponent/>
-        <hr/>
-        <ProductDisplay/>
+        {/* <hr/>
+        <ProductDisplay/> */}
     </Fragment>
   )
 }
