@@ -63,9 +63,7 @@ const AccountPage = () => {
       Name : {currentUser.first_name} {currentUser.last_name}<br></br>
       Phone Number : {currentUser.phone} <br></br>
       Email : {currentUser.email} <br></br>
-      Your Address : {currentUser.street}, {currentUser.city}, {currentUser.state}, {currentUser.pincode} <br></br>
-      <br></br>
-      <NavLink to={`/EditAddress/${currentUser._id}`}>Edit or Add Address</NavLink><br></br><br></br>
+      <NavLink to={"/EditAddress"}>Edit or Add Address</NavLink><br></br><br></br>
       <a href='/Login' onClick={logoutHandler}>Logout</a>
     </Fragment>
   )

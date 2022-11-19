@@ -6,6 +6,8 @@ const bodyParser = require("body-parser")
 const User = require('./models/user.models')
 const cookieParser = require("cookie-parser")
 const session = require("express-session")
+const Razorpay = require("razorpay")
+const crypto = require("crypto")
 const store = new session.MemoryStore();
 const app = express();
 // const bcrypt = require("bcryptjs")
@@ -17,13 +19,25 @@ const cartdb = require('./models/cart.models');
 const multer = require('multer')
 const bcrypt=require("bcrypt")
 const fs = require('fs')
+const addressdb = require("./models/address.model")
 const Skey = "soelshaikhshaikhsoelshaikhsoelab"
+const razorpay_key_id = "rzp_test_2TuO5NUvU21p95"
+const razorpay_secret_key = "S0A6zi0OqqbyF4MF5PYI04Cz"
 
 
 app.use(cors());
 app.use(express.json())
 app.use(cookieParser())
 app.use(bodyParser.json());
+
+const razorpayInstance = new Razorpay({
+  
+    // Replace with your key_id
+    key_id: "rzp_test_2TuO5NUvU21p95",
+  
+    // Replace with your key_secret
+    key_secret: "S0A6zi0OqqbyF4MF5PYI04Cz"
+});
 
 app.use(
     session({
@@ -121,7 +135,7 @@ app.post('/api/login', async (req, res) => {
             _id : user1._id,
             
         }, Skey,
-        {expiresIn : "1h"});
+        {expiresIn : "1d"});
 
 
         
@@ -185,7 +199,7 @@ app.post("/api/addtocart/:productId", async (req, res)=>{
        
         const rootProduct = await productdb.findOne({_id:productId})
        
-        const currentCart = await cartdb.findOne({product_id : productId});
+        const currentCart = await cartdb.findOne({product_id : productId, user_id : rootUser._id});
 
         if(!currentCart){
             const addToCart = await cartdb.create({
@@ -199,7 +213,7 @@ app.post("/api/addtocart/:productId", async (req, res)=>{
             console.log("Product Added to Cart Successfully")
             return res.status(201).json(addToCart)
         } else {
-            const updateCart = await cartdb.updateOne({product_id : productId},
+            const updateCart = await cartdb.updateOne({product_id : productId, user_id : rootUser._id},
                 {qty : currentCart.qty+1, total_amount : (currentCart.qty+1)*rootProduct.price});
 
             console.log(updateCart)
@@ -235,6 +249,146 @@ app.get("/api/getcartitems", async (req, res)=>{
     }
 })
 
+app.get("/api/getaddress", async (req, res)=>{
+    try{
+        const token =  req.headers.authorization;
+        
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        console.log(rootUser.first_name)
+
+        const userAddress = await addressdb.find({user_id : rootUser._id})
+
+        console.log(userAddress)
+
+        res.status(201).json(userAddress)
+
+    }catch(err){
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getaddressid/:id", async (req, res)=>{
+    try{
+        const {id} =  req.params;
+
+        const userAddress = await addressdb.findById(id)
+
+        console.log(userAddress)
+
+        res.status(201).json(userAddress)
+
+    }catch(err){
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.post('/api/addaddress', async (req, res) => {
+   
+    try {
+       
+        const token =  req.headers.authorization;
+        
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        console.log(rootUser.first_name)
+
+        const addAddress = await addressdb.create({
+            user_id : rootUser._id,
+            phone : req.body.phone,
+            street : req.body.street,
+            city : req.body.city,
+            state : req.body.state,
+            pincode : req.body.pincode,
+        })
+        console.log(addAddress)
+        console.log("Address Added Successfully")
+        res.status(201).json(addAddress)
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(422).json("Error Found")
+    }
+})
+
+app.delete("/api/deleteaddress/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deleteAddress = await addressdb.findByIdAndDelete({ _id: id })
+        // console.log(deletcategory);
+        res.status(201).json(deleteAddress);
+
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.delete("/api/deletefromcart/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletecart = await cartdb.findByIdAndDelete({ _id: id })
+        // console.log(deletcategory);
+        res.status(201).json(deletecart);
+
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.post('/api/minuscartitem/:id', async (req, res) => { 
+    try {
+       
+        const {id} = req.params
+
+        console.log(id)
+
+        const currentCart = await cartdb.findById(id);
+
+        if(currentCart.qty!==1){
+
+            const cartQtyUpdate = await cartdb.findByIdAndUpdate(id, {qty : (currentCart.qty-1), total_amount : currentCart.total_amount-(currentCart.total_amount/currentCart.qty)}, {
+                new : true
+            });
+        
+            res.status(201).json(cartQtyUpdate)
+        } else {
+            res.status(401).json("Error Found")
+        }
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(401).json("Error Found")
+    }
+})
+
+app.post('/api/pluscartitem/:id', async (req, res) => { 
+    try {
+        const {id} = req.params
+
+        console.log(id)
+
+        const currentCart = await cartdb.findById(id);
+
+        const cartQtyUpdate = await cartdb.findByIdAndUpdate(id, {qty : (currentCart.qty+1), total_amount : currentCart.total_amount+(currentCart.total_amount/currentCart.qty)}, {
+            new : true
+        });
+
+        res.status(201).json(cartQtyUpdate)
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(401).json("Error Found")
+    }
+})
+
 app.patch("/api/updateaddress/:id", async (req, res) => {
     try {
 
@@ -242,7 +396,7 @@ app.patch("/api/updateaddress/:id", async (req, res) => {
 
         console.log(id)
     
-        const updateAddress = await User.findByIdAndUpdate(id, {street : req.body.street, city : req.body.city, state : req.body.state, pincode : req.body.pincode}, {
+        const updateAddress = await addressdb.findByIdAndUpdate(id, {phone : req.body.phone, street : req.body.street, city : req.body.city, state : req.body.state, pincode : req.body.pincode}, {
             new: true
         })
         // console.log("243 =>"+updateBrand);
