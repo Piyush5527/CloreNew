@@ -1,121 +1,96 @@
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { Navigate, useParams, useNavigate } from 'react-router-dom'
+import { NavLink, useParams, useNavigate } from 'react-router-dom'
+import deleteIcon from '../../icons/delete.png';
+import editIcon from '../../icons/edit.png';
 
 const EditAddress = () => {
 
-    const [currentUser, setCurrentUser] = useState("")
+    const [address, setAddress] = useState([])
 
     const navigate = useNavigate()
 
-    const [street, setStreet] = useState("")
-    const [state, setState] = useState("")
-    const [city, setCity] = useState("")
-    const [pincode, setPincode] = useState("")
+    const token = localStorage.getItem('usersdatatoken')
 
-    const {id} = useParams("")
+    console.log(token)
 
-    const getUser = async () => {
-        const user = await fetch(`http://localhost:1337/api/getuserid/${id}`, {
+    const getAddresses = async () => {
+        const addresses = await fetch("http://localhost:1337/api/getaddress", {
             method : "GET",
             headers : {
-                "Content-Type" : "application/json"
+                "Content-Type" : "application/json",
+                "Authorization" : token
             }
         })
 
-        const userGot = await user.json()
+        const getAddress = await addresses.json()
 
-        if(userGot.status === 422 || !userGot){
+        if(getAddress.status === 401 || !getAddress){
             console.log("error")
-          } else {
-            console.log("User : ",userGot)
-            setCurrentUser(userGot)
-          }
+        } else {
+            console.log(getAddress)
+            setAddress(getAddress)
+        }
+
+    }
+
+    const deleteAddress = async (addressId)=> {
+      const res = await fetch(`http://localhost:1337/api/deleteaddress/${addressId}`,{
+        method : "DELETE",
+        headers : {
+          "Content-Type" : "application/json"
+        }
+      })
+
+      const addressDel = await res.json()
+
+      if(addressDel.status === 401 || !addressDel){
+        console.log("error")
+      } else {
+        alert("Address Deleted Successfully")
+        getAddresses()
+      }
+    }
+
+    const editAddress = (addressId)=> {
+      navigate(`/EditAddressById/${addressId}`)
     }
 
     useEffect(()=>{
-        getUser();
+      getAddresses()
     }, [])
-
-    const updateAddressListener = async (event)=>{
-        event.preventDefault();
-
-        var formData = new FormData();
-
-        formData.append("street", street)
-        formData.append("city", city)
-        formData.append("pincode", pincode)
-        formData.append("state", state)
-
-        const config = {
-            headers : {
-                "Content-Type" : "application/json"
-            }
-        }
-
-        const res = await axios.patch(`http://localhost:1337/api/updateaddress/${id}`, formData, config);
-
-        if(res.data.status === 401  || !res.data){
-            console.log("error")
-        } else {
-            alert("Address Updated Successfully")
-            navigate("/Account")
-        }
-    }
-
-    return (
-        <div>
-      <h1>Update Address</h1>
-      <form>
-          <div className='form_input'>
-            <label htmlFor='street'>Enter House No. and Street</label>
-            <input type="text"
-             onChange={(e) => setStreet(e.target.value)}
-            value={currentUser.street} 
-            name="street" 
-            placeholder='Enter House No. and Street' required/>
-          </div>
-          
-        
-         <div className='form_input'>
-            <label htmlFor='city'>Enter City</label>
-            <div className='two'>
-              <input 
-              type="text"
-              name="city"
-              onChange={(e) => setCity(e.target.value)}
-              value={currentUser.city}
-              placeholder='Enter City' required/>       
-            </div>
-          </div>
-
-          <div className='form_input'>
-            <label htmlFor='state'>Enter State</label>
-            <div className='two'>
-              <input 
-              type="text"
-              name="state"
-              onChange={(e) => setState(e.target.value)}
-              value={currentUser.state}
-              placeholder='Enter State' required/>       
-            </div>
-          </div>
-
-          <div className='form_input'>
-            <label htmlFor='city'>Enter Pincode</label>
-            <div className='two'>
-              <input 
-              type="number"
-              name="pincode"
-              onChange={(e) => setPincode(e.target.value)}
-              value={currentUser.pincode}
-              placeholder='Enter Pincode' maxLength={6} required/>       
-            </div>
-          </div>
-
-          <button className='btn' onClick={updateAddressListener}>Update Address</button>
-        </form>
-    </div>
+    return (<>
+      <NavLink to={"/AddAddress"}>Add New Address</NavLink>
+      <div>Your Addresses</div>
+      <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Phone</th>
+              <th scope="col">House No. & Society</th>
+              <th scope="col">City</th>
+              <th scope="col">State</th>
+              <th scope="col">Pincode</th>
+              <th scope="col" colSpan={2} align={'center'}>Action</th>
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
+            
+          {address.map((item)=>{
+              return (<>
+              <tr>
+                      <td>{item.phone}</td>
+                      <td>{item.street}</td>
+                      <td>{item.city}</td>
+                      <td>{item.state}</td>
+                      <td>{item.pincode}</td>
+                      <td><img src={editIcon} onClick={()=>editAddress(item._id)} height={30} width={30}></img></td>
+                      <td><img src={deleteIcon} onClick={()=>deleteAddress(item._id)} height={30} width={30}></img></td>
+                
+                <br></br>
+                </tr></>)
+          })}
+          </tbody>
+        </table>
+      </>
     )
 }
 

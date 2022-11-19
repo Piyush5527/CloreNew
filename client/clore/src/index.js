@@ -26,6 +26,10 @@ import ShowSubCategory from './Components/Admin/ShowSubCategory';
 import EditSubCategory from './Components/Admin/EditSubCategory';
 import ShowProductDetail from './Components/Shop/ShowProductDetail';
 import EditAddress from './Components/Account/EditAddress';
+import SelectAddress from './Components/Account/SelectAddress';
+import AddAddress from './Components/Account/AddAddress';
+import EditAddressById from './Components/Account/EditAddressById';
+import PlaceOrder from './Components/Cart/PlaceOrder';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -35,7 +39,12 @@ root.render(
       <Route path="/About" element={<AboutUs></AboutUs>} />
       <Route path ="/Login" element={<Login></Login>} />
       <Route path ="/Account" element={<AccountPage></AccountPage>} />
-      <Route path ="/EditAddress/:id" element={<EditAddress />} />
+      <Route path ="/SelectAddress" element={<SelectAddress/>} />
+      <Route path ="/AddAddress" element={<AddAddress />} />
+      <Route path ="/EditAddress" element={<EditAddress />} />
+      <Route path ="/EditAddressById/:id" element={<EditAddressById />} />
+
+      <Route path ="/PlaceOrder/:id" element={<PlaceOrder />} />
       <Route path ="/Cart" element={<CartPage></CartPage>} />
       
       <Route path ="/AddProduct" element={<AddProduct />} />
