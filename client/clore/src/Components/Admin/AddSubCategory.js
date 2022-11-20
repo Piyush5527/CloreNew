@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios"
-import { Navigate, useNavigate } from 'react-router-dom';
-import ShowBrand from './ShowBrand';
+import { useNavigate } from 'react-router-dom';
+// import ShowBrand from './ShowBrand';
 
 const AddSubCategory = () => {
     const [list1, setList1] = useState([])
@@ -12,7 +12,12 @@ const AddSubCategory = () => {
 
     useEffect(() => {
         getCategory()
-    }, [])
+    }, []);
+    // useEffect(() => {
+    //   // setCategoryId(list1.at(0)._id)
+    //   console.log(list1[0].id)
+    // },[list1]);
+    
 
     const getCategory = async () => {
         const res = await fetch("http://localhost:1337/api/getcategory", {
@@ -27,6 +32,7 @@ const AddSubCategory = () => {
             console.log("error")
         } else {
             setList1(categoryData)
+            
             //console.log(data);
         }
     }
@@ -54,8 +60,11 @@ const AddSubCategory = () => {
 
 
     }
+    useEffect(()=>{
+      console.log(list1)
+    },[])
   return (
-    <>
+    
     <section>
       <div className='form_data'>
         <div className='form_heading'>
@@ -76,12 +85,12 @@ const AddSubCategory = () => {
           <div class="form-group">
             <label for="exampleInputUsername1">Product Category</label>
                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} selected name='category_id' class="form-control">
-                  {
+                {
                     list1.map((item, index) => {
                       return (
-                          <>
+                          
                             <option value={item._id}>{item.category_name}</option>
-                          </>
+                          
                       )
                     })
                   }     
@@ -92,7 +101,7 @@ const AddSubCategory = () => {
         </form>
       </div>
     </section>
-    </>
+  
   )
 }
 
