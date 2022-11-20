@@ -30,6 +30,8 @@ import SelectAddress from './Components/Account/SelectAddress';
 import AddAddress from './Components/Account/AddAddress';
 import EditAddressById from './Components/Account/EditAddressById';
 import PlaceOrder from './Components/Cart/PlaceOrder';
+import MyOrders from './Components/Account/MyOrders';
+import MyOrderDetails from './Components/Account/MyOrderDetails';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -43,6 +45,9 @@ root.render(
       <Route path ="/AddAddress" element={<AddAddress />} />
       <Route path ="/EditAddress" element={<EditAddress />} />
       <Route path ="/EditAddressById/:id" element={<EditAddressById />} />
+
+      <Route path ="/MyOrders" element={<MyOrders />} />
+      <Route path ="/MyOrderDetails/:id" element={<MyOrderDetails />} />
 
       <Route path ="/PlaceOrder/:id" element={<PlaceOrder />} />
       <Route path ="/Cart" element={<CartPage></CartPage>} />
