@@ -32,6 +32,7 @@ import EditAddressById from './Components/Account/EditAddressById';
 import PlaceOrder from './Components/Cart/PlaceOrder';
 import MyOrders from './Components/Account/MyOrders';
 import MyOrderDetails from './Components/Account/MyOrderDetails';
+import ShowOrders from './Components/Admin/ShowOrders';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -67,6 +68,8 @@ root.render(
       <Route path ="/AddSubCategory" element={<AddSubCategory />} />
       <Route path ="/ShowSubCategory" element={<ShowSubCategory />} />
       <Route path ="/EditSubCategory/:id" element={<EditSubCategory />} />
+
+      <Route path ="/ShowOrders" element={<ShowOrders />} />
 
       <Route path ="/Shop" element={<ShopPage />} />
       <Route path="/ShowProductDetail/:id" element={<ShowProductDetail />} />

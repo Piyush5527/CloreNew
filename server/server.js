@@ -102,6 +102,18 @@ app.get("/api/getmyorders", async (req, res) => {
     }
 })
 
+app.get("/api/getallmyorders", async (req, res) => {
+    try {
+    
+        const myOrders = await finalorderdb.find().populate('product_id order_id user_id')
+
+        res.status(200).json(myOrders);
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
 app.get("/api/getmyorderid/:id", async (req, res) => {
     try {
         const {id} = req.params
