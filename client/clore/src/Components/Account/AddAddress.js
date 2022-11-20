@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import NavbarBoots from '../Navabar/NavbarBoots'
 
 const AddAddress = () => {
 
@@ -47,6 +48,7 @@ const AddAddress = () => {
     }
   return (
     <>
+    <NavbarBoots/>
     <section>
       <div className='form_data'>
         <div className='form_heading'>

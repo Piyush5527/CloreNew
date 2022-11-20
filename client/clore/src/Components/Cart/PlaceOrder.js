@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-
+import '../../CSS/UI/Card.css';
 const PlaceOrder = () => {
 
     const [currentUser, setCurrentUser] = useState("")
@@ -76,9 +76,9 @@ const PlaceOrder = () => {
         getUser()
         getAddressById()
     }, [])
-    return (<>
+    return (<Fragment>
        
-        <div>
+        <div className='design_container'>
             <h4>YOUR ITEMS</h4>
             <table class="table">
           <thead>
@@ -100,7 +100,7 @@ const PlaceOrder = () => {
                 {totalAmount+=item.total_amount}
                 return (<>
                     <tr>
-                            <td><img src={`http://localhost:1337/productImages/${item.product_id?.image1}`} height={50} width={50}></img></td>
+                            <td><img src={`http://localhost:1337/productImages/${item.product_id?.image1}`} height={50} width={50} style={{borderRadius:4}}></img></td>
                             <td>{item.product_id?.product_name}</td>
                             <td>{item.product_id?.size}</td>
                             <td>{item.total_amount/item.qty}</td>
@@ -132,7 +132,7 @@ const PlaceOrder = () => {
             </table>
         </div>
         <br></br><br></br>
-        <div>
+        <div className='design_container'>
             <table>
                 <tr>
                     <th>PRICE DETAILS</th>
@@ -155,9 +155,9 @@ const PlaceOrder = () => {
         </div>
         <br></br>
         <div>
-            <button>PLACE ORDER</button>
+            <button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}}>PLACE ORDER</button>
         </div>
-        </>
+        </Fragment>
     )
 }
 

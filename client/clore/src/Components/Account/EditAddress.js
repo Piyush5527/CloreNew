@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,Fragment } from 'react'
 import { NavLink, useParams, useNavigate } from 'react-router-dom'
 import deleteIcon from '../../icons/delete.png';
 import editIcon from '../../icons/edit.png';
+import NavbarBoots from '../Navabar/NavbarBoots';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../CSS/UI/Card.css';
 
 const EditAddress = () => {
 
@@ -58,9 +61,11 @@ const EditAddress = () => {
     useEffect(()=>{
       getAddresses()
     }, [])
-    return (<>
-      <NavLink to={"/AddAddress"}>Add New Address</NavLink>
-      <div>Your Addresses</div>
+    return (<Fragment>
+    <NavbarBoots/>
+    <div className='design_container'>
+      <NavLink className='btn btn-success' to={"/AddAddress"}>Add Address</NavLink>
+      <h2 style={{textAlign:'center'}}>Your Addresses</h2>
       <table class="table">
           <thead>
             <tr>
@@ -90,7 +95,8 @@ const EditAddress = () => {
           })}
           </tbody>
         </table>
-      </>
+        </div>
+      </Fragment>
     )
 }
 

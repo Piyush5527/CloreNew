@@ -95,11 +95,9 @@ const ShowProductDetail = () => {
               <td>More Details</td>
               <td>{list.long_desc}</td>
             </tr>
-            <tr>
-              <td colSpan={2} style={{textAlign:'center'}}><a className='btn btn-success' style={{color:'black'}} onClick={() => addProductToCart(list._id)}>Add to Cart  <HiOutlineShoppingCart/></a></td>
-            </tr>
+            
           </table>
-          
+          <a className='btn btn-warning' style={{color:'black'}} onClick={() => addProductToCart(list._id)}>Add to Cart  <HiOutlineShoppingCart/></a>
         </div>
       </div>
     </Fragment>
