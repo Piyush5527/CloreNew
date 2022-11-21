@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom';
 import AddCategory from './AddCategory';
+import AdminNavbar from './AdminNavbar';
 
 const ShowSubCategory = () => {
 
@@ -46,6 +47,7 @@ const ShowSubCategory = () => {
 
   return (
     <div>
+      <AdminNavbar/>
       <NavLink to={"/AddSubCategory"}>Add Sub Category</NavLink><br></br>
       {list.map((item)=>{
         return (<>

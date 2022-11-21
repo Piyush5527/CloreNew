@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import AdminNavbar from './AdminNavbar'
 
 
 const ShowProduct = () => {
@@ -53,6 +54,7 @@ const ShowProduct = () => {
 
   return (
     <div>
+      <AdminNavbar/>
         <NavLink to={"/AddProduct"}>Add Product</NavLink><br></br><br></br>
       {
         list.length>0?

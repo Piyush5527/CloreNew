@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom';
 import AddBrand from './AddBrand';
+import AdminNavbar from './AdminNavbar';
 
 const ShowBrand = () => {
 
@@ -47,6 +48,7 @@ const ShowBrand = () => {
 
   return (
     <div>
+      <AdminNavbar/>
       <NavLink to={"/AddBrand"}>Brands</NavLink><br></br>
       {list.map((item)=>{
         return (<>

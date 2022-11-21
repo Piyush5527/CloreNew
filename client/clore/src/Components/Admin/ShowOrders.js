@@ -1,5 +1,6 @@
 import React, {useState, useNavigate, useEffect} from 'react'
 import { NavLink } from 'react-router-dom';
+import AdminNavbar from './AdminNavbar';
 
 const ShowOrders = () => {
   
@@ -31,6 +32,7 @@ const ShowOrders = () => {
 
     return (
         <div>
+            <AdminNavbar/>
              <table class="table">
           <thead>
             <tr>
