@@ -6,6 +6,7 @@ import classes from '../../CSS/ShopPage/shoppage.module.css';
 import ProductNew from '../Home/ProductNew';
 
 
+
 const Home = () => {
 
   const [list, setList] = useState([])

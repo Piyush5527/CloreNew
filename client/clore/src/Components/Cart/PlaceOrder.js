@@ -1,13 +1,18 @@
+
 import React, { Fragment, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Navigate, useParams, useNavigate } from 'react-router-dom'
 import '../../CSS/UI/Card.css';
 import NavbarBoots from '../Navabar/NavbarBoots';
+import pic from '../../image/CLORE.png';
+import axios from 'axios';
 const PlaceOrder = () => {
 
     const [currentUser, setCurrentUser] = useState("")
     const [address, setAddress] = useState("")
+    const [order, setOrder] = useState("")
     const [cart, setCart] = useState([])
     const {id} = useParams("")
+    const navigate = useNavigate()
 
     var totalAmount = 0;
     var totalQty = 0;
@@ -70,6 +75,78 @@ const PlaceOrder = () => {
             console.log(getAddress)
             setAddress(getAddress)
         }
+    }
+
+    const checkOutHandler = async (addId) => {
+        console.log("Address Id : ", addId)
+        const checkOut = await fetch(`http://localhost:1337/api/checkout/${addId}`,{
+            method : "POST",
+            headers : {
+                "Content-Type" : "application/json",
+                "Authorization" : token
+            }
+        })
+
+        const getCheckOut = await checkOut.json()
+
+        if(getCheckOut.status === 401 || !getCheckOut) {
+            console.log("Error")
+        } else {
+            console.log(getCheckOut);
+            setOrder(getCheckOut)
+            const options = {
+                key: "rzp_test_2TuO5NUvU21p95",
+                amount: getCheckOut.amount, 
+                currency: "INR",
+                name: "Clore-The Cloth Store",
+                description: "Test Transaction",
+                image: pic,
+                order_id: getCheckOut.id, 
+                //callback_url: "http://localhost:1337/api/paymentverification",
+                handler: async function (response){
+                    alert(response.razorpay_payment_id);
+                    alert(response.razorpay_order_id);
+                    alert(response.razorpay_signature)
+    
+                    var formData = new FormData();
+    
+                    formData.append("razorpay_payment_id",response.razorpay_payment_id)
+                    formData.append("razorpay_order_id",response.razorpay_order_id)
+                    formData.append("razorpay_signature",response.razorpay_signature)
+    
+                    const config = {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization" : token
+                        }
+                    }
+              
+                    const res = await axios.post("http://localhost:1337/api/paymentverification", formData, config);
+                    if (res.data.status === 401 || !res.data) {
+                        console.log("errror")
+                    } else {
+                        alert("Payment Successfully")
+                        navigate("/MyOrders")
+                    }
+                },
+                prefill: {
+                    name: currentUser.first_name,
+                    email: currentUser.email,
+                    contact: currentUser.phone
+                },
+                notes: {
+                    address: "Razorpay Corporate Office"
+                },
+                theme: {
+                    color: "#3399cc"
+                }
+            };
+            const razor = new window.Razorpay(options);
+            razor.open();
+        }
+
+        
+        
     }
 
     useEffect(()=>{
@@ -156,7 +233,10 @@ const PlaceOrder = () => {
         </div>
         <br></br>
         <div>
-            <button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}}>PLACE ORDER</button>
+            <button onClick={()=>checkOutHandler(address._id)}>PLACE ORDER</button>
+
+            //<button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}}>PLACE ORDER</button>
+
         </div>
         </Fragment>
     )

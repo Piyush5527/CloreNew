@@ -16,11 +16,15 @@ const categorydb = require('./models/category.models');
 const subcategorydb = require('./models/sub_category.models');
 const branddb = require('./models/brand.models');
 const cartdb = require('./models/cart.models');
+const orderdb = require('./models/order.models');
+const finalorderdb = require('./models/final_order.models');
 const multer = require('multer')
 const bcrypt=require("bcrypt")
 const fs = require('fs')
 const addressdb = require("./models/address.model")
+const { db } = require("./models/user.models")
 const { application } = require("express")
+
 const Skey = "soelshaikhshaikhsoelshaikhsoelab"
 const razorpay_key_id = "rzp_test_2TuO5NUvU21p95"
 const razorpay_secret_key = "S0A6zi0OqqbyF4MF5PYI04Cz"
@@ -31,6 +35,8 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(bodyParser.json());
 
+mongoose.connect('mongodb://localhost:27017/clore')
+
 const razorpayInstance = new Razorpay({
   
     // Replace with your key_id
@@ -39,6 +45,155 @@ const razorpayInstance = new Razorpay({
     // Replace with your key_secret
     key_secret: "S0A6zi0OqqbyF4MF5PYI04Cz"
 });
+
+var currentAddressId = null;
+
+app.post("/api/checkout/:id", async (req, res) => {
+    try {
+    
+        const {id} = req.params;
+
+        currentAddressId = id;
+
+        const rootAddress = await addressdb.findOne({_id : id});
+
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        //console.log(verifytoken);
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const cartItems = await cartdb.find({user_id : rootUser._id}).populate('product_id user_id')
+
+        var totalCartAmount = 0;
+
+        if(cartItems){
+            for(var i=0; i<cartItems.length; i++) {
+                totalCartAmount+=cartItems[i].total_amount;
+            }
+
+            const options = {
+                amount : totalCartAmount*100,
+                currency : "INR",
+            };
+
+            const order = await razorpayInstance.orders.create(options)
+            res.status(200).json(order)
+        }
+
+        
+
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getmyorders", async (req, res) => {
+    try {
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const myOrders = await finalorderdb.find({user_id : rootUser._id}).populate('product_id order_id user_id')
+
+        res.status(200).json(myOrders);
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getallmyorders", async (req, res) => {
+    try {
+    
+        const myOrders = await finalorderdb.find().populate('product_id order_id user_id')
+
+        res.status(200).json(myOrders);
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getmyorderid/:id", async (req, res) => {
+    try {
+        const {id} = req.params
+
+
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const myOrder = await finalorderdb.findById(id).populate('product_id user_id');
+
+        const myOrderDetails = await orderdb.findById(myOrder.order_id).populate('address_id')
+        console.log(myOrder);
+        console.log(myOrderDetails);
+        res.status(200).json({Order : myOrder, OrderDetails : myOrderDetails});
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.post("/api/paymentverification", async (req, res) => {
+    try {
+        console.log("In Payment Verification")
+        console.log("Payment Id : ",req.body)
+
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        //console.log(verifytoken);
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const cartItems = await cartdb.find({user_id : rootUser._id}).populate('product_id user_id')
+
+        let body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
+        var expectedSignature = crypto.createHmac('sha256', 'S0A6zi0OqqbyF4MF5PYI04Cz')
+                                        .update(body.toString())
+                                        .digest('hex');
+        console.log("sig received " ,req.body.razorpay_signature);
+        console.log("sig generated " ,expectedSignature);
+        if(expectedSignature === req.body.razorpay_signature){
+            console.log("Signature Matched")
+            
+            const orderCreation = await orderdb.create({
+                user_id : rootUser._id,
+                address_id  :  currentAddressId,
+                payment_status : "Success",
+                payment_mode : "Online"
+            });
+
+            orderCreation.save()
+
+            if(orderCreation) {
+                const orders = await orderdb.find({user_id : rootUser._id})
+                for(var i=0; i<cartItems.length; i++) {
+                    const finalOrderCreation = await finalorderdb.create({
+                        user_id : rootUser._id,
+                        order_id : orders[orders.length-1]._id,
+                        product_id : cartItems[i].product_id,
+                        quantity : cartItems[i].qty,
+                        total : cartItems[i].total_amount
+                    });
+
+                    finalOrderCreation.save();
+
+                    await cartdb.findByIdAndDelete({ _id: cartItems[i]._id })
+                }
+            }
+            res.status(200).json({reference : req.body.razorpay_payment_id})
+        } else {
+            res.status(401).json("Error")
+        }
+    
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
 
 app.use(
     session({
@@ -52,7 +207,7 @@ app.use("/productImages",express.static("./productImages"));
 
 
 
-mongoose.connect('mongodb://localhost:27017/clore')
+
 
 async function comparePassword(plaintextPassword, hash) {
     const result = await bcrypt.compare(plaintextPassword, hash);

@@ -30,6 +30,9 @@ import SelectAddress from './Components/Account/SelectAddress';
 import AddAddress from './Components/Account/AddAddress';
 import EditAddressById from './Components/Account/EditAddressById';
 import PlaceOrder from './Components/Cart/PlaceOrder';
+import MyOrders from './Components/Account/MyOrders';
+import MyOrderDetails from './Components/Account/MyOrderDetails';
+import ShowOrders from './Components/Admin/ShowOrders';
 import AdminLogin from './Components/Admin/AdminLogin';
 import AdminHomePage from './Components/Admin/AdminHomePage';
 
@@ -45,6 +48,9 @@ root.render(
       <Route path ="/AddAddress" element={<AddAddress />} />
       <Route path ="/EditAddress" element={<EditAddress />} />
       <Route path ="/EditAddressById/:id" element={<EditAddressById />} />
+
+      <Route path ="/MyOrders" element={<MyOrders />} />
+      <Route path ="/MyOrderDetails/:id" element={<MyOrderDetails />} />
 
       <Route path ="/PlaceOrder/:id" element={<PlaceOrder />} />
       <Route path ="/Cart" element={<CartPage></CartPage>} />
@@ -64,6 +70,8 @@ root.render(
       <Route path ="/AddSubCategory" element={<AddSubCategory />} />
       <Route path ="/ShowSubCategory" element={<ShowSubCategory />} />
       <Route path ="/EditSubCategory/:id" element={<EditSubCategory />} />
+
+      <Route path ="/ShowOrders" element={<ShowOrders />} />
 
       <Route path ="/Shop" element={<ShopPage />} />
       <Route path="/ShowProductDetail/:id" element={<ShowProductDetail />} />
