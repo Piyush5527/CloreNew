@@ -28,8 +28,9 @@ const AdminLogin = () => {
                     email, password
                 })
             })
-
-            if (data.status === "ok") {
+            const dataRes=await data.json()
+            console.log(dataRes)
+            if (dataRes === 'Login Successful') {
                 navigate('/AdminHomePage');
             }
             else {

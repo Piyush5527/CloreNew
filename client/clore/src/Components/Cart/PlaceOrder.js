@@ -233,9 +233,9 @@ const PlaceOrder = () => {
         </div>
         <br></br>
         <div>
-            <button onClick={()=>checkOutHandler(address._id)}>PLACE ORDER</button>
+            <button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}} onClick={()=>checkOutHandler(address._id)}>PLACE ORDER</button>
 
-            //<button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}}>PLACE ORDER</button>
+            {/* <button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}}>PLACE ORDER</button> */}
 
         </div>
         </Fragment>
