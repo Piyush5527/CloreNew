@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import '../../CSS/UI/Card.css';
+import NavbarBoots from '../Navabar/NavbarBoots';
 const PlaceOrder = () => {
 
     const [currentUser, setCurrentUser] = useState("")
@@ -77,7 +78,7 @@ const PlaceOrder = () => {
         getAddressById()
     }, [])
     return (<Fragment>
-       
+       <NavbarBoots/>
         <div className='design_container'>
             <h4>YOUR ITEMS</h4>
             <table class="table">

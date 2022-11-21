@@ -188,6 +188,31 @@ app.get("/api/getuserid/:id", async (req, res) => {
     }
 });
 
+//admin login
+    app.post("/api/adminLogin",async(req,res)=>{
+        try{
+            let email=req.body.email;
+            let password=req.body.password;
+            console.log("hello")
+            if(email === "admin@gmail.com" && password === "Admin@123"){
+                console.log("all ok")
+                return res.status("ok");
+                
+            }
+            else
+            {
+                console.log("error");
+                return res.status("error");
+            }
+        }
+        catch(err)
+        {
+            console.log(err)
+            return res.status("error");
+        }
+    });
+//admin login end
+
 app.post("/api/addtocart/:productId", async (req, res)=>{
     try{
         const {productId} = req.params
