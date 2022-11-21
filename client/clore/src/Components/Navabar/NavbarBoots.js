@@ -10,9 +10,11 @@ import '../../CSS/Navbar/Navbar.css';
 
 const NavbarBoots = () => {
     const [modalViewer, setModalViewer] = useState(false);
+    const [searchKey, setSearchKey] = useState("")
     const navigater = useNavigate();
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
     const [userId, setUserId] = useState(null);
+
     useEffect(() => {
         setUserId(localStorage.getItem('usersdatatoken'));
         if (userId) {
@@ -33,7 +35,7 @@ const NavbarBoots = () => {
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
                             <form className="d-flex w-25 mt-0" role="search">
                                 <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search" />
-                                <button className="invisible" type="submit"></button>
+                                <button className="invisible"></button>
                             </form>
                             <div className="invisible">
                                 <p>&nbsp .</p>
