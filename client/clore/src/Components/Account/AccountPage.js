@@ -101,7 +101,7 @@ const AccountPage = () => {
       <div className={styles.buttonsGroup}>
         <NavLink className='btn btn-primary ms-1'  to={"/EditAddress"}>Edit or Add Address</NavLink>
         <a href='/Login' className='btn btn-danger ms-1' onClick={logoutHandler}>Logout</a>
-        <a className='btn btn-secondary ms-1' >Change Password</a>
+        <NavLink className='btn btn-secondary ms-1' to='/MyOrders'>My Orders</NavLink>
       </div>
       </div>
     </Fragment>

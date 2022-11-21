@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Link, NavLink, useNavigate } from "react-router-dom"
+import NavbarBoots from "../Navabar/NavbarBoots";
 
 
 const MyOrders = () => {
@@ -35,6 +36,7 @@ const MyOrders = () => {
 
     return (
         <div>
+            <NavbarBoots/>
              <table class="table">
           <thead>
             <tr>

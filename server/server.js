@@ -351,8 +351,7 @@ app.get("/api/getuserid/:id", async (req, res) => {
             console.log("hello")
             if(email === "admin@gmail.com" && password === "Admin@123"){
                 console.log("all ok")
-                return res.status("ok");
-                
+                res.status(200).json("Login Successful");
             }
             else
             {

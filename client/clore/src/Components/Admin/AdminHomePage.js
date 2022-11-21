@@ -1,8 +1,12 @@
-import React from 'react'
+import React,{Fragment} from 'react'
+import AdminNavbar from './AdminNavbar'
 
 const AdminHomePage = () => {
   return (
-    <div>AdminHomePage</div>
+    <Fragment>
+        <AdminNavbar/>
+        AdminHomePage
+    </Fragment>
   )
 }
 
