@@ -119,8 +119,10 @@ const CartProducts = (props) => {
       })}
 
         Total Quantity : {totalQty}
+        <br/>
         Total Amount : {"₹"+totalAmount}
-        <NavLink to={"/SelectAddress"}>Select Address</NavLink>
+        <br/>
+        <NavLink to={"/SelectAddress"} className="btn btn-success">Checkout</NavLink>
 
         </Fragment>
     )

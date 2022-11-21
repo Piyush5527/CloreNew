@@ -11,9 +11,9 @@ const Product = (props) => {
             <div className="card m-4" style={{ width: '18rem' }}>
                 <img src={process.env.PUBLIC_URL + "images/" + props.imageName} className="card-img-top" alt="..." />
                 <div className="card-body">
-                    <h5 className="card-title">Jeans</h5>
-                    <h6>{props.imageName}</h6>
-                    <p className="card-text">Short description for the product in about 100 letters</p>
+                    <h5 className="card-title">{props.productName}</h5>
+                    {/* <h6>{props.imageName}</h6> */}
+                    <p className="card-text">{props.shortDesc}</p>
                     <div className="w-75 mx-auto">
                         <a href="#" className="btn btn-outline-warning mx-2"><HiOutlineShoppingCart /></a>
                         <a href="#" className="btn btn-outline-success mx-2"><BsEye /></a>

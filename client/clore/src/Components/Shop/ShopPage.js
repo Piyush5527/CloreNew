@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { NavLink, useNavigate, useParams } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+// import Product from '../Home/Product'
+import NavbarBoots from '../Navabar/NavbarBoots'
+import classes from '../../CSS/ShopPage/shoppage.module.css';
+import ProductNew from '../Home/ProductNew';
+
 
 
 const Home = () => {
@@ -21,7 +26,7 @@ const Home = () => {
     if (res.status === 422 || !productData) {
       console.log("error");
     } else {
-      
+
       setList(productData)
 
     }
@@ -30,40 +35,35 @@ const Home = () => {
   const productDetailHandler = (productId) => {
     navigate(`/ShowProductDetail/${productId}`)
   }
-  
+
   useEffect(() => {
     getData()
-    
+
   }, [])
-  
+
 
 
   return (
     <div>
-      {
-        list.length>0?
+      <NavbarBoots></NavbarBoots>
+      <div className={classes.container_main}>
+        {
+          list.length > 0 ?
+          // onClick={() => productDetailHandler(item._id)}
+            list.map((item) => {
+              return (
+                <div >
+                  <ProductNew imageName={`http://localhost:1337/productImages/${item.image1}`} productName={item.product_name} shortDesc={item.small_desc}
+                  _id={item._id}
+                  />
+                </div>
+              )
+            })
+            :
+            ""
+        }
+      </div>
 
-        list.map((item) => {
-          return (
-            <div onClick={()=>productDetailHandler(item._id)}>
-              <img variant="top" style={{ width: "100px", textAlign: "center", margin: "auto" , height:"100px" }} src={`http://localhost:1337/productImages/${item.image1}`} className='mt-2' />
-              name :{item.product_name} || 
-              selling_price :{item.price} ||
-              description :{item.short_desc} ||
-              description :{item.long_desc} ||
-              product_category : {item.category_id?.category_name} ||
-              product_brand : {item.brand_id?.brand_name} ||
-              product_brand : {item.sub_category_id?.sub_category_name} ||
-              countInStock :{item.qty} ||
-              Size :{item.size}  ||
-              Color :{item.color} 
-            </div>
-            )
-          })
-          :
-          ""
-      }
-      
     </div>
   )
 }

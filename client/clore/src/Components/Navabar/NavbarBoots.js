@@ -11,7 +11,8 @@ import '../../CSS/Navbar/Navbar.css';
 const NavbarBoots = () => {
     const [modalViewer, setModalViewer] = useState(false);
     const [searchKey, setSearchKey] = useState("")
-    const navigater = useNavigate();
+    const navigate = useNavigate();
+
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
     const [userId, setUserId] = useState(null);
 
@@ -23,6 +24,9 @@ const NavbarBoots = () => {
         }
     }, [isUserLoggedIn, userId]);
 
+    const goToCart = () => {
+        navigate('/Cart');
+    }
     return (
         <Fragment>
             {isUserLoggedIn &&
@@ -40,13 +44,9 @@ const NavbarBoots = () => {
                             <div className="invisible">
                                 <p>&nbsp .</p>
                             </div>
-                            <ul className="navbar-nav my-auto mt-2">
+                            <ul className="navbar-nav ms-5 ps-5 mt-2">
                                 <li className="nav-item mt-2">
                                     <NavLink className="nav-link text-dark mx-2" aria-current="page" to={"/"}>Home</NavLink>
-                                </li>
-                                <li className="nav-item mt-2">
-                                    {/* <a className="nav-link text-dark" onClick={()=>navigater("About")} >About</a> */}
-                                    <NavLink className="nav-link text-dark mx-2" to={"About"}><a >About</a></NavLink>
                                 </li>
                                 <li className="nav-item mt-2">
                                     <a className="nav-link text-dark mx-2" href="/Shop">Shop</a>
@@ -54,25 +54,16 @@ const NavbarBoots = () => {
                                 <li className="nav-item mb-2">
                                     <NavLink className="nav-link" to={"/"}><img src={pic} height={40} width={80} /></NavLink>
                                 </li>
-                                <li className="nav-item mt-2">
-                                    <a className="nav-link text-dark mx-2" href="#">Pages</a>
-                                </li>
+
                                 <li className="nav-item mt-2">
                                     <a className="nav-link text-dark mx-2" href="#">Category</a>
                                 </li>
                                 <li className="nav-item mt-2">
-                                    <NavLink className="nav-link text-dark mx-2" to={"Contact"}>Contact</NavLink>
+                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact</NavLink>
                                 </li>
                             </ul>
                             <div className='navbar-nav ms-auto'>
 
-                                {/* <NavLink to={"Cart"}><a className='nav-link px-3' 
-                                onMouseEnter={() => setModalViewer(true)}
-                                onMouseLeave={() => setModalViewer(false)}
-                            ><img src={cartIcon} height={30} width={30}/></a>
-                            {modalViewer && (<div><CartModal/></div>)}</NavLink> */}
-
-                                {/* <NavLink to={"Cart"}><a className='nav-link px-3'><img src={cartIcon} height={30} width={30}/></a></NavLink> */}
                                 <div
                                     onMouseEnter={() => setModalViewer(true)}
                                     onMouseLeave={() => setModalViewer(false)}>
@@ -80,7 +71,7 @@ const NavbarBoots = () => {
                                         <NavLink to={"/Cart"} className='nav-link px-3'>
                                             <img src={cartIcon} height={30} width={30} />
                                         </NavLink>
-                                        {<div class="dropdown-links">
+                                        {<div class="dropdown-links" onClick={()=>goToCart()}>
                                             <ul class="dropdown-lists">
                                                 <li><CartModal /></li>
                                             </ul>
@@ -109,13 +100,9 @@ const NavbarBoots = () => {
                             <div className="invisible">
                                 <p>&nbsp .</p>
                             </div>
-                            <ul className="navbar-nav my-auto mt-2">
+                            <ul className="navbar-nav ms-5 ps-5 mt-2">
                                 <li className="nav-item mt-2">
                                     <NavLink className="nav-link text-dark mx-2" aria-current="page" to={"/"}>Home</NavLink>
-                                </li>
-                                <li className="nav-item mt-2">
-                                    {/* <a className="nav-link text-dark" onClick={()=>navigater("About")} >About</a> */}
-                                    <NavLink className="nav-link text-dark mx-2" to={"About"}><a >About</a></NavLink>
                                 </li>
                                 <li className="nav-item mt-2">
                                     <a className="nav-link text-dark mx-2" href="/Shop">Shop</a>
@@ -123,14 +110,12 @@ const NavbarBoots = () => {
                                 <li className="nav-item mb-2">
                                     <NavLink className="nav-link" to={"/"}><img src={pic} height={40} width={80} /></NavLink>
                                 </li>
-                                <li className="nav-item mt-2">
-                                    <a className="nav-link text-dark mx-2" href="#">Pages</a>
-                                </li>
+                                
                                 <li className="nav-item mt-2">
                                     <a className="nav-link text-dark mx-2" href="#">Category</a>
                                 </li>
                                 <li className="nav-item mt-2">
-                                    <NavLink className="nav-link text-dark mx-2" to={"Contact"}>Contact</NavLink>
+                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact</NavLink>
                                 </li>
                             </ul>
                             <div className='navbar-nav ms-auto'>

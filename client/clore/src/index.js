@@ -33,6 +33,8 @@ import PlaceOrder from './Components/Cart/PlaceOrder';
 import MyOrders from './Components/Account/MyOrders';
 import MyOrderDetails from './Components/Account/MyOrderDetails';
 import ShowOrders from './Components/Admin/ShowOrders';
+import AdminLogin from './Components/Admin/AdminLogin';
+import AdminHomePage from './Components/Admin/AdminHomePage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -75,6 +77,8 @@ root.render(
       <Route path="/ShowProductDetail/:id" element={<ShowProductDetail />} />
       <Route path="/Register" element={<Register></Register>}/>
       <Route path ="/Contact" element={<Contact></Contact>}/>
+      <Route path ="/AdminLogin" element={<AdminLogin></AdminLogin>}/>
+      <Route path ="/AdminHomePage" element={<AdminHomePage></AdminHomePage>}/>
     </Routes>
   </BrowserRouter>
   // <React.StrictMode>

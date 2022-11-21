@@ -23,6 +23,8 @@ const bcrypt=require("bcrypt")
 const fs = require('fs')
 const addressdb = require("./models/address.model")
 const { db } = require("./models/user.models")
+const { application } = require("express")
+
 const Skey = "soelshaikhshaikhsoelshaikhsoelab"
 const razorpay_key_id = "rzp_test_2TuO5NUvU21p95"
 const razorpay_secret_key = "S0A6zi0OqqbyF4MF5PYI04Cz"
@@ -340,6 +342,31 @@ app.get("/api/getuserid/:id", async (req, res) => {
         return res.status(422)
     }
 });
+
+//admin login
+    app.post("/api/adminLogin",async(req,res)=>{
+        try{
+            let email=req.body.email;
+            let password=req.body.password;
+            console.log("hello")
+            if(email === "admin@gmail.com" && password === "Admin@123"){
+                console.log("all ok")
+                return res.status("ok");
+                
+            }
+            else
+            {
+                console.log("error");
+                return res.status("error");
+            }
+        }
+        catch(err)
+        {
+            console.log(err)
+            return res.status("error");
+        }
+    });
+//admin login end
 
 app.post("/api/addtocart/:productId", async (req, res)=>{
     try{
@@ -888,6 +915,26 @@ app.get("/api/getsubcategorywithcategory", async (req, res) => {
         res.status(422).json(error);
     }
 })
+
+app.get("/api/getAddressCnt",async (req, res) => {
+    try{
+        const token =  req.headers.authorization;
+        
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const getAddressesData= await addressdb.find({user_id:rootUser._id});
+
+        console.log(getAddressesData.length);
+
+        res.status(201).json(getAddressesData.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error); 
+    }
+});
 
 
 
