@@ -5,25 +5,209 @@ const mongoose = require("mongoose")
 const bodyParser = require("body-parser")
 const User = require('./models/user.models')
 const cookieParser = require("cookie-parser")
+const session = require("express-session")
+const Razorpay = require("razorpay")
+const crypto = require("crypto")
+const store = new session.MemoryStore();
 const app = express();
 // const bcrypt = require("bcryptjs")
 const productdb = require('./models/product.models');
 const categorydb = require('./models/category.models');
 const subcategorydb = require('./models/sub_category.models');
 const branddb = require('./models/brand.models');
+const cartdb = require('./models/cart.models');
+const orderdb = require('./models/order.models');
+const finalorderdb = require('./models/final_order.models');
 const multer = require('multer')
 const bcrypt=require("bcrypt")
 const fs = require('fs')
+const addressdb = require("./models/address.model")
+const { db } = require("./models/user.models")
+const { application } = require("express")
+
+const Skey = "soelshaikhshaikhsoelshaikhsoelab"
+const razorpay_key_id = "rzp_test_2TuO5NUvU21p95"
+const razorpay_secret_key = "S0A6zi0OqqbyF4MF5PYI04Cz"
 
 
 app.use(cors());
 app.use(express.json())
 app.use(cookieParser())
-app.use("/productImages",express.static("./productImages"));
 app.use(bodyParser.json());
 
-
 mongoose.connect('mongodb://localhost:27017/clore')
+
+const razorpayInstance = new Razorpay({
+  
+    // Replace with your key_id
+    key_id: "rzp_test_2TuO5NUvU21p95",
+  
+    // Replace with your key_secret
+    key_secret: "S0A6zi0OqqbyF4MF5PYI04Cz"
+});
+
+var currentAddressId = null;
+
+app.post("/api/checkout/:id", async (req, res) => {
+    try {
+    
+        const {id} = req.params;
+
+        currentAddressId = id;
+
+        const rootAddress = await addressdb.findOne({_id : id});
+
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        //console.log(verifytoken);
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const cartItems = await cartdb.find({user_id : rootUser._id}).populate('product_id user_id')
+
+        var totalCartAmount = 0;
+
+        if(cartItems){
+            for(var i=0; i<cartItems.length; i++) {
+                totalCartAmount+=cartItems[i].total_amount;
+            }
+
+            const options = {
+                amount : totalCartAmount*100,
+                currency : "INR",
+            };
+
+            const order = await razorpayInstance.orders.create(options)
+            res.status(200).json(order)
+        }
+
+        
+
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getmyorders", async (req, res) => {
+    try {
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const myOrders = await finalorderdb.find({user_id : rootUser._id}).populate('product_id order_id user_id')
+
+        res.status(200).json(myOrders);
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getallmyorders", async (req, res) => {
+    try {
+    
+        const myOrders = await finalorderdb.find().populate('product_id order_id user_id')
+
+        res.status(200).json(myOrders);
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getmyorderid/:id", async (req, res) => {
+    try {
+        const {id} = req.params
+
+
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const myOrder = await finalorderdb.findById(id).populate('product_id user_id');
+
+        const myOrderDetails = await orderdb.findById(myOrder.order_id).populate('address_id')
+        console.log(myOrder);
+        console.log(myOrderDetails);
+        res.status(200).json({Order : myOrder, OrderDetails : myOrderDetails});
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.post("/api/paymentverification", async (req, res) => {
+    try {
+        console.log("In Payment Verification")
+        console.log("Payment Id : ",req.body)
+
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        //console.log(verifytoken);
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const cartItems = await cartdb.find({user_id : rootUser._id}).populate('product_id user_id')
+
+        let body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
+        var expectedSignature = crypto.createHmac('sha256', 'S0A6zi0OqqbyF4MF5PYI04Cz')
+                                        .update(body.toString())
+                                        .digest('hex');
+        console.log("sig received " ,req.body.razorpay_signature);
+        console.log("sig generated " ,expectedSignature);
+        if(expectedSignature === req.body.razorpay_signature){
+            console.log("Signature Matched")
+            
+            const orderCreation = await orderdb.create({
+                user_id : rootUser._id,
+                address_id  :  currentAddressId,
+                payment_status : "Success",
+                payment_mode : "Online"
+            });
+
+            orderCreation.save()
+
+            if(orderCreation) {
+                const orders = await orderdb.find({user_id : rootUser._id})
+                for(var i=0; i<cartItems.length; i++) {
+                    const finalOrderCreation = await finalorderdb.create({
+                        user_id : rootUser._id,
+                        order_id : orders[orders.length-1]._id,
+                        product_id : cartItems[i].product_id,
+                        quantity : cartItems[i].qty,
+                        total : cartItems[i].total_amount
+                    });
+
+                    finalOrderCreation.save();
+
+                    await cartdb.findByIdAndDelete({ _id: cartItems[i]._id })
+                }
+            }
+            res.status(200).json({reference : req.body.razorpay_payment_id})
+        } else {
+            res.status(401).json("Error")
+        }
+    
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.use(
+    session({
+        resave : true,
+        saveUninitialized : true,
+        store : store,
+        secret : "secret123"})
+);
+
+app.use("/productImages",express.static("./productImages"));
+
+
+
+
 
 async function comparePassword(plaintextPassword, hash) {
     const result = await bcrypt.compare(plaintextPassword, hash);
@@ -95,31 +279,318 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     
-    const user = await User.findOne({
+    const user1 = await User.findOne({
         email : req.body.email, 
         // password : req.body.password, 
     })
-    passwordMatch=await comparePassword( req.body.password,user.password)
+    passwordMatch=await comparePassword( req.body.password,user1.password)
     
-    console.log(passwordMatch)
-    if(user && passwordMatch) {
+    if(user1 && passwordMatch) {
         const token = jwt.sign({
             // name : user.name,
-            email : user.email,
-        }, 'secret123') 
+            _id : user1._id,
+            
+        }, Skey,
+        {expiresIn : "1d"});
 
+
+        
+        user1.tokens = user1.tokens.concat({token:token})
+        await user1.save()
+        
+    
         return res.json({ status : 'ok', user : token})
     }else {
         return res.json({ status : 'error', user : false})
     }
     
-    return res.json({status : 'ok'});
-    
 })
 
-// const uploadImages = (req, res, next) => {
+app.get("/api/user", async (req, res) => {
     
-//   };
+    try{
+        const token =  req.headers.authorization;
+        console.log(token)
+        const verifytoken = jwt.verify(token, Skey)
+        //console.log(verifytoken);
+        const rootUser = await User.findOne({_id:verifytoken._id})
+        console.log(rootUser);
+        if(!rootUser){
+            throw new Error("user not found")
+        }
+        return res.status(201).json(rootUser);
+    } catch (err) {
+        console.log(err)
+        res.status(422).json("Error Found")
+    }
+
+    
+});
+
+app.get("/api/getuserid/:id", async (req, res) => {
+    try{
+        const {id} = req.params
+        const user = await User.findById({_id : id});
+
+        if(user){
+            return res.status(201).json(user)
+        }else{
+            return res.status(422)
+        }
+    } catch(err){
+        console.log(err)
+        return res.status(422)
+    }
+});
+
+//admin login
+    app.post("/api/adminLogin",async(req,res)=>{
+        try{
+            let email=req.body.email;
+            let password=req.body.password;
+            console.log("hello")
+            if(email === "admin@gmail.com" && password === "Admin@123"){
+                console.log("all ok")
+                return res.status("ok");
+                
+            }
+            else
+            {
+                console.log("error");
+                return res.status("error");
+            }
+        }
+        catch(err)
+        {
+            console.log(err)
+            return res.status("error");
+        }
+    });
+//admin login end
+
+app.post("/api/addtocart/:productId", async (req, res)=>{
+    try{
+        const {productId} = req.params
+        console.log(productId)
+        const token =  req.headers.authorization;
+        console.log(token)
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+       
+        const rootProduct = await productdb.findOne({_id:productId})
+       
+        const currentCart = await cartdb.findOne({product_id : productId, user_id : rootUser._id});
+
+        if(!currentCart){
+            const addToCart = await cartdb.create({
+                product_id : productId,
+                user_id : rootUser._id,
+                qty : 1,
+                total_amount : rootProduct.price
+            })
+
+            console.log(addToCart)
+            console.log("Product Added to Cart Successfully")
+            return res.status(201).json(addToCart)
+        } else {
+            const updateCart = await cartdb.updateOne({product_id : productId, user_id : rootUser._id},
+                {qty : currentCart.qty+1, total_amount : (currentCart.qty+1)*rootProduct.price});
+
+            console.log(updateCart)
+            console.log("Product Updated in Cart Successfully")
+            return res.status(201).json(updateCart)
+        }
+        
+        
+        
+        
+    } catch (err){
+        console.log(err)
+    }
+});
+
+app.get("/api/getcartitems", async (req, res)=>{
+    try{
+        const token =  req.headers.authorization;
+        
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const cartItems = await cartdb.find({user_id : rootUser._id}).populate('product_id user_id')
+
+        console.log(cartItems.length)
+
+        res.status(201).json(cartItems)
+
+    }catch(err){
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getaddress", async (req, res)=>{
+    try{
+        const token =  req.headers.authorization;
+        
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        console.log(rootUser.first_name)
+
+        const userAddress = await addressdb.find({user_id : rootUser._id})
+
+        console.log(userAddress)
+
+        res.status(201).json(userAddress)
+
+    }catch(err){
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.get("/api/getaddressid/:id", async (req, res)=>{
+    try{
+        const {id} =  req.params;
+
+        const userAddress = await addressdb.findById(id)
+
+        console.log(userAddress)
+
+        res.status(201).json(userAddress)
+
+    }catch(err){
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
+app.post('/api/addaddress', async (req, res) => {
+   
+    try {
+       
+        const token =  req.headers.authorization;
+        
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        console.log(rootUser.first_name)
+
+        const addAddress = await addressdb.create({
+            user_id : rootUser._id,
+            phone : req.body.phone,
+            street : req.body.street,
+            city : req.body.city,
+            state : req.body.state,
+            pincode : req.body.pincode,
+        })
+        console.log(addAddress)
+        console.log("Address Added Successfully")
+        res.status(201).json(addAddress)
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(422).json("Error Found")
+    }
+})
+
+app.delete("/api/deleteaddress/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deleteAddress = await addressdb.findByIdAndDelete({ _id: id })
+        // console.log(deletcategory);
+        res.status(201).json(deleteAddress);
+
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.delete("/api/deletefromcart/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deletecart = await cartdb.findByIdAndDelete({ _id: id })
+        // console.log(deletcategory);
+        res.status(201).json(deletecart);
+
+    } catch (error) {
+        res.status(422).json(error);
+    }
+})
+
+app.post('/api/minuscartitem/:id', async (req, res) => { 
+    try {
+       
+        const {id} = req.params
+
+        console.log(id)
+
+        const currentCart = await cartdb.findById(id);
+
+        if(currentCart.qty!==1){
+
+            const cartQtyUpdate = await cartdb.findByIdAndUpdate(id, {qty : (currentCart.qty-1), total_amount : currentCart.total_amount-(currentCart.total_amount/currentCart.qty)}, {
+                new : true
+            });
+        
+            res.status(201).json(cartQtyUpdate)
+        } else {
+            res.status(401).json("Error Found")
+        }
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(401).json("Error Found")
+    }
+})
+
+app.post('/api/pluscartitem/:id', async (req, res) => { 
+    try {
+        const {id} = req.params
+
+        console.log(id)
+
+        const currentCart = await cartdb.findById(id);
+
+        const cartQtyUpdate = await cartdb.findByIdAndUpdate(id, {qty : (currentCart.qty+1), total_amount : currentCart.total_amount+(currentCart.total_amount/currentCart.qty)}, {
+            new : true
+        });
+
+        res.status(201).json(cartQtyUpdate)
+    } 
+    catch (err) {
+        console.log(err)
+        res.status(401).json("Error Found")
+    }
+})
+
+app.patch("/api/updateaddress/:id", async (req, res) => {
+    try {
+
+        const { id } = req.params
+
+        console.log(id)
+    
+        const updateAddress = await addressdb.findByIdAndUpdate(id, {phone : req.body.phone, street : req.body.street, city : req.body.city, state : req.body.state, pincode : req.body.pincode}, {
+            new: true
+        })
+        // console.log("243 =>"+updateBrand);
+        res.status(201).json(updateAddress)
+    } catch (error) {
+        res.status(401).json(error)
+    }
+})
+
+app.get("/api/logout", (req, res) => {
+    req.session.destroy();
+    return res.json({status : 'ok'})
+});
 
 app.post('/api/addproduct', upload.single("image_path"), async (req, res) => {
     console.log("Items",req.body); 
@@ -172,18 +643,7 @@ app.post('/api/addbrand', upload.single("image_path"),async (req, res) => {
     console.log("In Add Brand",req.body); 
     const {filename} = req.file;
     console.log(filename);
-    //console.log(req.body.images);
-    // uploadFiles(req, res, err => {
-    //     if (err instanceof multer.MulterError) { // A Multer error occurred when uploading.
-    //       if (err.code === "LIMIT_UNEXPECTED_FILE") { // Too many images exceeding the allowed limit
-    //         console.log(err);
-    //       }
-    //     } else if (err) {
-    //       console.log(err);
-    //     }
     
-    //     // Everything is ok.
-    //   });
     try {
        
         const addBrand = await branddb.create({
@@ -455,6 +915,26 @@ app.get("/api/getsubcategorywithcategory", async (req, res) => {
         res.status(422).json(error);
     }
 })
+
+app.get("/api/getAddressCnt",async (req, res) => {
+    try{
+        const token =  req.headers.authorization;
+        
+        const verifytoken = jwt.verify(token, Skey)
+        
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const getAddressesData= await addressdb.find({user_id:rootUser._id});
+
+        console.log(getAddressesData.length);
+
+        res.status(201).json(getAddressesData.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error); 
+    }
+});
 
 
 
