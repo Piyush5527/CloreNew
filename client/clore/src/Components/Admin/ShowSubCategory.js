@@ -11,7 +11,7 @@ const ShowSubCategory = () => {
     const res = await fetch(`http://localhost:1337/api/deletesubcategory/${subCategoryId}`, {
       method: "DELETE",
       headers: {
-          "Content-Type": "application/json"
+        "Content-Type": "application/json"
       }
     })
 
@@ -19,46 +19,62 @@ const ShowSubCategory = () => {
     if (res.status === 422 || !subCategoryDelete) {
       console.log("error");
     } else {
-        alert("Sub Category Deleted Successfully")
-        getSubCategory()
+      alert("Sub Category Deleted Successfully")
+      getSubCategory()
     }
 
   }
   const getSubCategory = async () => {
 
     const res = await fetch("http://localhost:1337/api/getsubcategorywithcategory", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
     })
 
     const subCategoryData = await res.json()
     if (res.status === 422 || !subCategoryData) {
-        console.log("error");
+      console.log("error");
     } else {
-        setList(subCategoryData) 
+      setList(subCategoryData)
     }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     getSubCategory()
   }, [])
 
   return (
-    <div>
-      <AdminNavbar/>
-      <NavLink to={"/AddSubCategory"}>Add Sub Category</NavLink><br></br>
-      {list.map((item)=>{
-        return (<>
-          {item.sub_category_name}||
-          {item.category_id?.category_name}
-          <NavLink to={`/EditSubCategory/${item._id}`}>Edit</NavLink>
-          <button onClick={()=>deleteSubCategory(item._id)}>Delete</button>
-          <br></br>
-        </>)
-      })}
-    </div>
+    <Fragment>
+      <AdminNavbar />
+
+      <div className='design_container'>
+        <NavLink to={"/AddSubCategory"} className="btn btn-success">Add Sub Category</NavLink><br></br>
+        <table className='table'>
+          <thead>
+            <tr>
+              <th scope="col">Sub Category</th>
+              <th scope="col">Category</th>
+              <th scope="col">Edit</th>
+              <th scope="col">Delete</th>
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
+            {list.map((item) => {
+              return (<tr>
+                <td>{item.sub_category_name}</td>
+                <td>{item.category_id?.category_name}</td>
+                <td><NavLink to={`/EditSubCategory/${item._id}`} className="btn btn-primary">Edit</NavLink></td>
+                <td><button onClick={() => deleteSubCategory(item._id)} className="btn btn-danger">Delete</button></td>
+                <br></br>
+              </tr>)
+            })}
+          </tbody>
+
+        </table>
+      </div>
+    </Fragment>
   )
 }
 

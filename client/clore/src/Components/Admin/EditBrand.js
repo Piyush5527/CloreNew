@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import AddBrand from './AddBrand';
 import axios from "axios"
+import AdminNavbar from './AdminNavbar';
 
 
 const EditBrand = () => {
@@ -59,8 +60,14 @@ const EditBrand = () => {
   }
 
   return (
-    <div>
-      <h1>Update Brand</h1>
+    <Fragment>
+      <AdminNavbar/>
+    <section>
+      <div className='form_data'>
+        <div className='form_heading'>
+        <h1>Update Brand</h1>
+        </div>
+      
       <form>
           <div className='form_input'>
             <label htmlFor='brand_name'>Enter Brand Name</label>
@@ -85,7 +92,9 @@ const EditBrand = () => {
 
           <button className='btn' onClick={updateBrandListener}>Update Brand</button>
         </form>
-    </div>
+        </div>
+    </section>
+    </Fragment>
   )
 }
 
