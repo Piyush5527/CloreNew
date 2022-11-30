@@ -35,7 +35,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(bodyParser.json());
 
-mongoose.connect('mongodb://localhost:27017/clore')
+mongoose.connect('mongodb://0.0.0.0:27017/clore')
 
 const razorpayInstance = new Razorpay({
   
@@ -934,6 +934,96 @@ app.get("/api/getAddressCnt",async (req, res) => {
         res.status(422).json(error); 
     }
 });
+
+//admin dashboard data functions
+app.get("/api/getusercnt",async(req,res)=>{
+    try{
+        const userData=await User.find();
+        // console.log(userData.length);
+        res.status(201).json(userData.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error);
+    }
+});
+app.get("/api/getproductcnt",async(req,res)=>{
+    try{
+        const productData=await productdb.find();
+        // console.log("product len",productData.length);
+        res.status(201).json(productData.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error);
+    }
+});
+
+app.get("/api/getordercount",async(req,res)=>{
+    try{
+        const orderData=await orderdb.find();
+        // console.log(orderData.length);
+        res.status(201).json(orderData.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error);
+    }
+});
+app.get("/api/getcompletedordercount",async(req,res)=>{
+    try{
+        const completedorderData=await finalorderdb.find();
+        res.status(201).json(completedorderData.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error);
+    }
+})
+app.get("/api/getotalsales",async(req,res)=>{
+    try{
+        const orderData=await finalorderdb.find();
+        // console.log(typeof orderData);
+        let total=0;
+        orderData.map((item)=>{
+            total+=item.total;
+            
+        });
+        // console.log("total sales is :",total);
+        res.status(201).json(total);
+    }
+    catch(error)
+    {
+        console.log(error)
+        res.status(422).json(error);
+    }
+})
+app.get("/api/getthismonthsales",async(req,res)=>{
+    try{
+        const orderData=await finalorderdb.find();
+        let thisMonthSales=0;
+        let todayDate=new Date(Date.now());
+        let month=todayDate.getMonth()+1;
+        let year=todayDate.getFullYear()
+        let formattedDate=year+"-"+month;
+        // console.log("today date is :",formattedDate);
+        orderData.map((item)=>{
+            let saleMonth=item.created_at.getMonth()+1;
+            let saleYear=item.created_at.getFullYear();
+            let newFormatedDate=saleYear+"-"+saleMonth;
+            if(newFormatedDate===formattedDate){
+                thisMonthSales+=item.total;
+            }
+        })
+        // console.log("this month sales is :",thisMonthSales);
+        res.status(201).json(thisMonthSales);
+    }
+    catch(error)
+    {
+        console.log(error)
+        res.status(422).json(error);
+    }
+})
 
 
 

@@ -85,6 +85,7 @@ const AddSubCategory = () => {
           <div class="form-group">
             <label for="exampleInputUsername1">Product Category</label>
                <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} selected name='category_id' class="form-control">
+               <option value={""}>Select</option>
                 {
                     list1.map((item, index) => {
                       return (
