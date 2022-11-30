@@ -980,6 +980,60 @@ app.get("/api/getcompletedordercount",async(req,res)=>{
         res.status(422).json(error);
     }
 })
+
+app.get("/api/getbrandcount",async(req,res)=>{
+    try{
+        const brandCnt=await branddb.find();
+        res.status(201).json(brandCnt.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error);
+    }
+})
+
+app.get("/api/getcategorycount",async(req,res)=>{
+    try{
+        const categoryCnt=await categorydb.find();
+        res.status(201).json(categoryCnt.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error);
+    }
+})
+
+app.get("/api/getsubcategorycount",async(req,res)=>{
+    try{
+        const subCategoryCnt=await subcategorydb.find();
+        res.status(201).json(subCategoryCnt.length);
+    }
+    catch(error)
+    {
+        res.status(422).json(error);
+    }
+})
+
+app.get("/api/getlowstockcount",async(req,res)=>{
+    try{
+        const productCnt=await productdb.find();
+
+        let totalCnt = 0;
+
+        productCnt.map((item)=>{
+            if(item.qty<10){
+                totalCnt+=1;
+            }
+        });
+
+        res.status(201).json(totalCnt);
+    }
+    catch(error)
+    {
+        res.status(422).json(error);
+    }
+})
+
 app.get("/api/getotalsales",async(req,res)=>{
     try{
         const orderData=await finalorderdb.find();
@@ -998,6 +1052,26 @@ app.get("/api/getotalsales",async(req,res)=>{
         res.status(422).json(error);
     }
 })
+
+app.get("/api/getunitselled",async(req,res)=>{
+    try{
+        const orderData=await finalorderdb.find();
+        // console.log(typeof orderData);
+        let totalQty = 0;
+
+        orderData.map((item)=>{
+            totalQty+=item.quantity;
+        });
+        // console.log("total sales is :",total);
+        res.status(201).json(totalQty);
+    }
+    catch(error)
+    {
+        console.log(error)
+        res.status(422).json(error);
+    }
+})
+
 app.get("/api/getthismonthsales",async(req,res)=>{
     try{
         const orderData=await finalorderdb.find();

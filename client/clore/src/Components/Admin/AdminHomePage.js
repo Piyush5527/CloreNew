@@ -10,6 +10,12 @@ const AdminHomePage = () => {
   const [totalSales,setTotalSales]=useState("");
   const [thisMonthSales,setThisMonthSales]=useState("");
   const [unitSelled,setUnitSelled]=useState("");
+  const [brandCnt,setBrandCnt]=useState("");
+  const [categoryCnt,setCategoryCnt]=useState("");
+  const [subCategoryCnt,setSubCategoryCnt]=useState("");
+  const [lowStockCnt,setLowStockCnt]=useState("");
+
+
   const getUserCnt = async () => {
     const res = await fetch("http://localhost:1337/api/getusercnt", {
       method: "GET",
@@ -60,6 +66,70 @@ const AdminHomePage = () => {
     }
     else {
        setOrderCnt(orderCntData);
+    }
+  }
+
+  const getBrandCnt = async () =>{
+    const res = await fetch("http://localhost:1337/api/getbrandcount", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const brandCntData = await res.json();
+    if (res.status === 422) {
+      console.log(brandCntData);
+    }
+    else {
+       setBrandCnt(brandCntData);
+    }
+  }
+
+  const getCategoryCnt = async () =>{
+    const res = await fetch("http://localhost:1337/api/getcategorycount", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const categoryCntData = await res.json();
+    if (res.status === 422) {
+      console.log(categoryCntData);
+    }
+    else {
+       setCategoryCnt(categoryCntData);
+    }
+  }
+
+  const getSubCategoryCnt = async () =>{
+    const res = await fetch("http://localhost:1337/api/getsubcategorycount", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const subCategoryCntData = await res.json();
+    if (res.status === 422) {
+      console.log(subCategoryCntData);
+    }
+    else {
+       setSubCategoryCnt(subCategoryCntData);
+    }
+  }
+
+  const getLowStockCnt = async () =>{
+    const res = await fetch("http://localhost:1337/api/getlowstockcount", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const lowStockCntData = await res.json();
+    if (res.status === 422) {
+      console.log(lowStockCntData);
+    }
+    else {
+       setLowStockCnt(lowStockCntData);
     }
   }
 
@@ -134,6 +204,11 @@ const AdminHomePage = () => {
     getCompletedOrdercount();
     getTotalSales();
     getThisMonthSales();
+    getUnitSelled();
+    getBrandCnt();
+    getCategoryCnt();
+    getSubCategoryCnt();
+    getLowStockCnt();
   }, [])
 
 
@@ -147,12 +222,12 @@ const AdminHomePage = () => {
         <AdminDashboardCard header='Orders Completed' value={compOrderCnt} />
         <AdminDashboardCard header='Total Sales' value={totalSales+" Rs"} />
         <AdminDashboardCard header='This Month Sales' value={thisMonthSales+" Rs"} />
-        <AdminDashboardCard header='Unit Selled' value='testing' />
-        <AdminDashboardCard header='Low Stock(<10)' value='testing' />
+        <AdminDashboardCard header='Unit Selled' value={unitSelled} />
+        <AdminDashboardCard header='Low Stock(<10)' value={lowStockCnt} />
         <div className={styles.container_center}>
-          <AdminDashboardCard header='Brands Count' value='testing' />
-          <AdminDashboardCard header='Category Count' value='testing' />
-          <AdminDashboardCard header='Sub Category Count' value='testing' />
+          <AdminDashboardCard header='Brands Count' value={brandCnt} />
+          <AdminDashboardCard header='Category Count' value={categoryCnt} />
+          <AdminDashboardCard header='Sub Category Count' value={subCategoryCnt} />
         </div>
       </div>
     </Fragment>
