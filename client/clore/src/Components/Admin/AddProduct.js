@@ -153,6 +153,7 @@ const AddProduct = () => {
           <div class="form-group">
             <label for="exampleInputUsername1">Product Category</label>
                <select value={category_id} onChange={(e) => setCategory(e.target.value)} selected name='category_id' class="form-control">
+               <option value={""}>Select</option>
                   {
                     list1.map((item, index) => {
                       return (
@@ -184,6 +185,7 @@ const AddProduct = () => {
           <div class="form-group">
             <label for="exampleInputUsername1">Product Category</label>
                <select value={sub_category_id} onChange={(e) => setSubCategory(e.target.value)} selected name='sub_category_id' class="form-control">
+               <option value={""}>Select</option>
                   {
                     list2.map((item, index) => {
                       return (
