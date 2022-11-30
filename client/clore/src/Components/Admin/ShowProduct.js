@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { Tab } from 'bootstrap'
+import React, { Fragment, useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import AdminNavbar from './AdminNavbar'
 
 
 const ShowProduct = () => {
@@ -11,7 +13,7 @@ const ShowProduct = () => {
     const res = await fetch(`http://localhost:1337/api/deleteProduct/${brandId}`, {
       method: "DELETE",
       headers: {
-          "Content-Type": "application/json"
+        "Content-Type": "application/json"
       }
     })
 
@@ -19,8 +21,8 @@ const ShowProduct = () => {
     if (res.status === 422 || !brandDelete) {
       console.log("error");
     } else {
-        alert("Product Deleted Successfully")
-        getData()
+      alert("Product Deleted Successfully")
+      getData()
     }
 
   }
@@ -38,49 +40,67 @@ const ShowProduct = () => {
     if (res.status === 422 || !productData) {
       console.log("error");
     } else {
-      
+
       setList(productData)
 
     }
   }
-  
+
   useEffect(() => {
     getData()
-    
+
   }, [])
-  
+
 
 
   return (
-    <div>
-        <NavLink to={"/AddProduct"}>Add Product</NavLink><br></br><br></br>
-      {
-        list.length>0?
+    <Fragment>
+      <AdminNavbar />
+      <div className='design_container'>
+      <NavLink to={"/AddProduct"} className="btn btn-success">Add Product</NavLink>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Image</th>
+              <th scope="col">Product</th>
+              <th scope="col">Price</th>
+              <th scope="col">Category</th>
+              <th scope="col">Brand</th>
+              <th scope="col">Stock</th>
+              <th scope="col">Size</th>
+              <th scope="col">Color</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
+            {
+              list.length > 0 ?
 
-        list.map((item) => {
-          return (
-            <div>
-              <img variant="top" style={{ width: "100px", textAlign: "center", margin: "auto" , height:"100px" }} src={`http://localhost:1337/productImages/${item.image1}`} className='mt-2' />
-              name :{item.product_name} || 
-              selling_price :{item.price} ||
-              description :{item.short_desc} ||
-              description :{item.long_desc} ||
-              product_category : {item.category_id?.category_name} ||
-              product_brand : {item.brand_id?.brand_name} ||
-              product_brand : {item.sub_category_id?.sub_category_name} ||
-              countInStock :{item.qty} ||
-              Size :{item.size}  ||
-              Color :{item.color} 
-              <NavLink to={`/EditProduct/${item._id}`}>Edit</NavLink>
-              <button onClick={()=>deleteProduct(item._id)}>Delete</button><br></br>
-            </div>
-            )
-          })
-          :
-          ""
-      }
-      
-    </div>
+                list.map((item) => {
+                  return (
+                    <tr>
+                      <td><img variant="top" style={{ width: "100px", textAlign: "center", margin: "auto", height: "100px" }} src={`http://localhost:1337/productImages/${item.image1}`} className='mt-2' /></td>
+                      <td>{item.product_name}</td>
+                      <td>{item.price}</td>
+                      <td>{item.category_id?.category_name}</td>
+                      <td> {item.brand_id?.brand_name}</td>
+                      <td>{item.qty} </td>
+                      <td>{item.size} </td>
+                      <td>{item.color} </td>
+                      <td><NavLink to={`/EditProduct/${item._id}`} className="btn btn-primary">Edit</NavLink>
+                        <button onClick={() => deleteProduct(item._id)} className="btn btn-danger">Delete</button></td><br></br>
+                    </tr>
+                  )
+                })
+                :
+                ""
+            }
+          </tbody>
+        </table>
+        
+      </div>
+
+    </Fragment>
   )
 }
 

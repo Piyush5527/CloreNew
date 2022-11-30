@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import AdminNavbar from './AdminNavbar';
 
 const EditProduct = () => {
     const [list, setList] = useState([])
@@ -157,6 +158,7 @@ const EditProduct = () => {
 
     return (
         <>
+        <AdminNavbar/>
     <section>
       <div className='form_data'>
         <div className='form_heading'>

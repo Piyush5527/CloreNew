@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom';
 import AddCategory from './AddCategory';
+import AdminNavbar from './AdminNavbar';
 
 const ShowCategory = () => {
 
@@ -46,15 +47,29 @@ const ShowCategory = () => {
 
   return (
     <div>
-      <NavLink to={"/AddCategory"}>Add Category</NavLink><br></br>
+      <AdminNavbar/>
+      <div className='design_container'>
+      <NavLink to={"/AddCategory"} className='btn btn-success'>Add Category</NavLink><br></br>
+      <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">Category Name</th>
+              <th scope="col">Edit</th>
+              <th scope="col">Delete</th>
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
       {list.map((item)=>{
-        return (<>
-          {item.category_name}
-          <NavLink to={`/EditCategory/${item._id}`}>Edit</NavLink>
-          <button onClick={()=>deleteCategory(item._id)}>Delete</button>
+        return (<tr>
+          <td>{item.category_name}</td>
+          <td><NavLink to={`/EditCategory/${item._id}`} className="btn btn-primary">Edit</NavLink></td>
+          <td><button onClick={()=>deleteCategory(item._id)} className="btn btn-danger">Delete</button></td>
           <br></br>
-        </>)
+        </tr>)
       })}
+      </tbody>
+      </table>
+      </div>
     </div>
   )
 }
