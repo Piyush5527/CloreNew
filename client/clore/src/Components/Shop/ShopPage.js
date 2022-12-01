@@ -4,7 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import NavbarBoots from '../Navabar/NavbarBoots'
 import classes from '../../CSS/ShopPage/shoppage.module.css';
 import ProductNew from '../Home/ProductNew';
-
+import Filter from './Filter';
 
 
 const Home = () => {
@@ -44,17 +44,19 @@ const Home = () => {
 
 
   return (
-    <div>
+    <div className={classes.master_container}>
       <NavbarBoots></NavbarBoots>
       <div className={classes.container_main}>
+        <Filter></Filter>
         {
           list.length > 0 ?
-          // onClick={() => productDetailHandler(item._id)}
+            // onClick={() => productDetailHandler(item._id)}
             list.map((item) => {
               return (
                 <div >
+
                   <ProductNew imageName={`http://localhost:1337/productImages/${item.image1}`} productName={item.product_name} shortDesc={item.small_desc}
-                  _id={item._id}
+                    _id={item._id}
                   />
                 </div>
               )
