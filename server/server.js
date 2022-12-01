@@ -195,6 +195,51 @@ app.post("/api/paymentverification", async (req, res) => {
     }
 })
 
+app.post("/api/checkoutbycod/:id", async (req, res) => {
+    try {
+        const {id} = req.params
+        const token =  req.headers.authorization;
+        const verifytoken = jwt.verify(token, Skey)
+        //console.log(verifytoken);
+        const rootUser = await User.findOne({_id:verifytoken._id})
+
+        const cartItems = await cartdb.find({user_id : rootUser._id}).populate('product_id user_id')
+
+            
+            const orderCreation = await orderdb.create({
+                user_id : rootUser._id,
+                address_id  :  id,
+                payment_status : "Pending",
+                payment_mode : "COD"
+            });
+
+            orderCreation.save()
+
+            if(orderCreation) {
+                const orders = await orderdb.find({user_id : rootUser._id})
+                for(var i=0; i<cartItems.length; i++) {
+                    const finalOrderCreation = await finalorderdb.create({
+                        user_id : rootUser._id,
+                        order_id : orders[orders.length-1]._id,
+                        product_id : cartItems[i].product_id,
+                        quantity : cartItems[i].qty,
+                        total : cartItems[i].total_amount
+                    });
+
+                    finalOrderCreation.save();
+
+                    await cartdb.findByIdAndDelete({ _id: cartItems[i]._id })
+                }
+            }
+            res.status(200).json("Order is Placed")
+        
+    
+    } catch (err) {
+        console.log(err)
+        res.status(401).json(err)
+    }
+})
+
 app.use(
     session({
         resave : true,
