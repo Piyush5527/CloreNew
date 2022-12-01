@@ -881,6 +881,22 @@ app.patch("/api/updatecategory/:id", async (req, res) => {
     }
 })
 
+app.get("/api/getsize",async(req, res)=>{
+    try{
+        const data = await productdb.find();
+        let size={};
+        data.map((item)=>{
+            // console.log(item.)
+            size[item.size]=item.size;            
+        })
+        // console.log("size data",size);
+        res.status(200).json(size);
+    }
+    catch(error){
+            res.status(422).json(error)
+    }
+})
+
 
 app.post('/api/addsubcategory', async (req, res) => {
     console.log(req.body); 
