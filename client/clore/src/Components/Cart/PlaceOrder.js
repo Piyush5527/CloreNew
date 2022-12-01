@@ -149,6 +149,26 @@ const PlaceOrder = () => {
         
     }
 
+    const cashOnDeliveryHandler = async (addId) => {
+        console.log("Address Id : ", addId)
+        const checkOut = await fetch(`http://localhost:1337/api/checkoutbycod/${addId}`,{
+            method : "POST",
+            headers : {
+                "Content-Type" : "application/json",
+                "Authorization" : token
+            }
+        })
+
+        const getCheckOut = await checkOut.json()
+
+        if(getCheckOut.status === 401 || !getCheckOut) {
+            console.log("Error")
+        } else {
+           alert("Order is Placed") 
+           navigate("/MyOrders")
+        }
+    }
+
     useEffect(()=>{
         getCartItems()
         getUser()
@@ -233,8 +253,10 @@ const PlaceOrder = () => {
         </div>
         <br></br>
         <div>
-            <button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}} onClick={()=>checkOutHandler(address._id)}>PLACE ORDER</button>
-
+            <button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}} onClick={()=>checkOutHandler(address._id)}>PAY ONLINE</button><br></br>
+        </div>
+        <div>
+            <button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}} onClick={()=>cashOnDeliveryHandler(address._id)}>PAY ON DELIVERY</button>
             {/* <button className='btn btn-success' style={{marginLeft: 'auto',marginRight: 'auto',display: 'block'}}>PLACE ORDER</button> */}
 
         </div>
