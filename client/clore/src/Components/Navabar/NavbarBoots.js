@@ -56,10 +56,10 @@ const NavbarBoots = () => {
                                 </li>
 
                                 <li className="nav-item mt-2">
-                                    <a className="nav-link text-dark mx-2" href="#">Category</a>
+                                    <a className="nav-link text-dark mx-2" href="#">About Us</a>
                                 </li>
                                 <li className="nav-item mt-2">
-                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact</NavLink>
+                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact Us</NavLink>
                                 </li>
                             </ul>
                             <div className='navbar-nav ms-auto'>
@@ -112,10 +112,10 @@ const NavbarBoots = () => {
                                 </li>
                                 
                                 <li className="nav-item mt-2">
-                                    <a className="nav-link text-dark mx-2" href="#">Category</a>
+                                    <a className="nav-link text-dark mx-2" href="#">About Us</a>
                                 </li>
                                 <li className="nav-item mt-2">
-                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact</NavLink>
+                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact Us</NavLink>
                                 </li>
                             </ul>
                             <div className='navbar-nav ms-auto'>

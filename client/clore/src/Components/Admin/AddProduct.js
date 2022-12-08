@@ -183,7 +183,7 @@ const AddProduct = () => {
           </div>
 
           <div class="form-group">
-            <label for="exampleInputUsername1">Product Category</label>
+            <label for="exampleInputUsername1">Product Sub Category</label>
                <select value={sub_category_id} onChange={(e) => setSubCategory(e.target.value)} selected name='sub_category_id' class="form-control">
                <option value={""}>Select</option>
                   {
