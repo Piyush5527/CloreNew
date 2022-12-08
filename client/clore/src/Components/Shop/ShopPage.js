@@ -10,6 +10,7 @@ import Filter from './Filter';
 const Home = () => {
 
   const [list, setList] = useState([])
+  const [histData,setHistData]=useState([])
 
   const navigate = useNavigate()
 
@@ -28,6 +29,7 @@ const Home = () => {
     } else {
 
       setList(productData)
+      setHistData(productData)
 
     }
   }
@@ -40,14 +42,55 @@ const Home = () => {
     getData()
 
   }, [])
+  const brandsFilterSubmit=(brandList)=>{
+    if (brandList !== "") {
+      
+      setList(histData)
+      setList(prevData => {
+        const updatedData = prevData.filter((item) => {
+          return item.brand_id._id === brandList;
+        })
+        return updatedData;
+      })
+      
+    }
+  }
+  const categoryFilterSubmit=(categoryList)=>{
+    if (categoryList !== "") {
+     
+      setList(histData)
+      setList(prevData => {
+        const updatedData = prevData.filter((item) => {
+          return item.category_id._id === categoryList;
+        })
+        return updatedData;
+      })
+  }
+}
+  const sizeFilterSubmit=(sizeList)=>{
+    if ( sizeList!== "") {
+      setList(histData)
+      setList(prevData => {
+        const updatedData = prevData.filter((item) => {
+          return item.size === sizeList;
+        })
+        return updatedData;
+      })
+    }
+  }
 
+  const onReset=()=>{
+    setList(histData)
+  }
 
+  
 
   return (
     <div className={classes.master_container}>
       <NavbarBoots></NavbarBoots>
       <div className={classes.container_main}>
-        <Filter></Filter>
+        {/* <Filter onFilterDataSubmitHandler={filterDataOnSubmit}></Filter> */}
+        <Filter onBrandChange={brandsFilterSubmit} onCategoryChange={categoryFilterSubmit} onSizeChange={sizeFilterSubmit} onResetFilter={onReset}></Filter>
         {
           list.length > 0 ?
             // onClick={() => productDetailHandler(item._id)}
