@@ -8,13 +8,22 @@ import CartModal from '../Cart/CartModal';
 import '../../CSS/Navbar/Navbar.css';
 
 
-const NavbarBoots = () => {
+const NavbarBoots = (props) => {
     const [modalViewer, setModalViewer] = useState(false);
     const [searchKey, setSearchKey] = useState("")
     const navigate = useNavigate();
 
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
     const [userId, setUserId] = useState(null);
+
+    const submitHandler = async (e) => {
+        e.preventDefault();
+        props.onFilterDataSubmitHandler(searchKey)
+    }
+
+    useEffect(()=>{
+        props.onSearchKeyChange(searchKey)   
+    },[searchKey])
 
     useEffect(() => {
         setUserId(localStorage.getItem('usersdatatoken'));
@@ -37,9 +46,13 @@ const NavbarBoots = () => {
                             <span className="navbar-toggler-icon"></span>
                         </button>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                            <form className="d-flex w-25 mt-0" role="search">
-                                <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search" />
-                                <button className="invisible"></button>
+                            <form className="d-flex w-25 mt-0" role="search" onSubmit={submitHandler}>
+                                <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search"
+                                    onChange={(e)=>{
+                                        setSearchKey(e.target.value);
+                                    }}
+                                />
+                                <button className="invisible" type="submit"></button>
                             </form>
                             <div className="invisible">
                                 <p>&nbsp .</p>
@@ -93,8 +106,12 @@ const NavbarBoots = () => {
                             <span className="navbar-toggler-icon"></span>
                         </button>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                            <form className="d-flex w-25 mt-0" role="search">
-                                <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search" />
+                            <form className="d-flex w-25 mt-0" role="search" onSubmit={submitHandler}>
+                                <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search"
+                                    onChange={(e)=>{
+                                        setSearchKey(e.target.value);
+                                    }}
+                                />
                                 <button className="invisible" type="submit"></button>
                             </form>
                             <div className="invisible">
