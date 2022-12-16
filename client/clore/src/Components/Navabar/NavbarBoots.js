@@ -8,13 +8,22 @@ import CartModal from '../Cart/CartModal';
 import '../../CSS/Navbar/Navbar.css';
 
 
-const NavbarBoots = () => {
+const NavbarBoots = (props) => {
     const [modalViewer, setModalViewer] = useState(false);
     const [searchKey, setSearchKey] = useState("")
     const navigate = useNavigate();
 
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
     const [userId, setUserId] = useState(null);
+
+    const submitHandler = async (e) => {
+        e.preventDefault();
+        props.onFilterDataSubmitHandler(searchKey)
+    }
+
+    useEffect(()=>{
+        props.onSearchKeyChange(searchKey)   
+    },[searchKey])
 
     useEffect(() => {
         setUserId(localStorage.getItem('usersdatatoken'));
@@ -37,9 +46,13 @@ const NavbarBoots = () => {
                             <span className="navbar-toggler-icon"></span>
                         </button>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                            <form className="d-flex w-25 mt-0" role="search">
-                                <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search" />
-                                <button className="invisible"></button>
+                            <form className="d-flex w-25 mt-0" role="search" onSubmit={submitHandler}>
+                                <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search"
+                                    onChange={(e)=>{
+                                        setSearchKey(e.target.value);
+                                    }}
+                                />
+                                <button className="invisible" type="submit"></button>
                             </form>
                             <div className="invisible">
                                 <p>&nbsp .</p>
@@ -56,10 +69,10 @@ const NavbarBoots = () => {
                                 </li>
 
                                 <li className="nav-item mt-2">
-                                    <a className="nav-link text-dark mx-2" href="#">Category</a>
+                                    <a className="nav-link text-dark mx-2" href="#">About Us</a>
                                 </li>
                                 <li className="nav-item mt-2">
-                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact</NavLink>
+                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact Us</NavLink>
                                 </li>
                             </ul>
                             <div className='navbar-nav ms-auto'>
@@ -93,8 +106,12 @@ const NavbarBoots = () => {
                             <span className="navbar-toggler-icon"></span>
                         </button>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                            <form className="d-flex w-25 mt-0" role="search">
-                                <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search" />
+                            <form className="d-flex w-25 mt-0" role="search" onSubmit={submitHandler}>
+                                <input className="form-control rounded-pill" type="text" placeholder="Search" aria-label="Search"
+                                    onChange={(e)=>{
+                                        setSearchKey(e.target.value);
+                                    }}
+                                />
                                 <button className="invisible" type="submit"></button>
                             </form>
                             <div className="invisible">
@@ -112,10 +129,10 @@ const NavbarBoots = () => {
                                 </li>
                                 
                                 <li className="nav-item mt-2">
-                                    <a className="nav-link text-dark mx-2" href="#">Category</a>
+                                    <a className="nav-link text-dark mx-2" href="#">About Us</a>
                                 </li>
                                 <li className="nav-item mt-2">
-                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact</NavLink>
+                                    <NavLink className="nav-link text-dark mx-2" to={"/Contact"}>Contact Us</NavLink>
                                 </li>
                             </ul>
                             <div className='navbar-nav ms-auto'>

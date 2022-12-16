@@ -79,6 +79,27 @@ const Home = () => {
     }
   }
 
+  const searchProductSubmit=async (searchKey)=>{
+    console.log("Search Key : ", searchKey);
+
+    const res = await fetch(`http://localhost:1337/api/search/${searchKey}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    const productData = await res.json();
+    if (res.status === 422 || !productData) {
+      console.log("error");
+    } else {
+
+      setList(productData)
+      setHistData(productData)
+
+    }
+  }
+
   const onReset=()=>{
     setList(histData)
   }
@@ -87,7 +108,7 @@ const Home = () => {
 
   return (
     <div className={classes.master_container}>
-      <NavbarBoots></NavbarBoots>
+      <NavbarBoots onSearchKeyChange={searchProductSubmit}></NavbarBoots>
       <div className={classes.container_main}>
         {/* <Filter onFilterDataSubmitHandler={filterDataOnSubmit}></Filter> */}
         <Filter onBrandChange={brandsFilterSubmit} onCategoryChange={categoryFilterSubmit} onSizeChange={sizeFilterSubmit} onResetFilter={onReset}></Filter>

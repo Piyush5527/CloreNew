@@ -86,7 +86,7 @@ const EditSubCategory = () => {
       <section>
         <div className='form_data'>
           <div className='form_heading'>
-            <h1>Update Category</h1>
+            <h1>Update Sub Category</h1>
           </div>
           <form>
             <div className='form_input'>

@@ -1160,6 +1160,15 @@ app.get("/api/getthismonthsales",async(req,res)=>{
     }
 })
 
+app.get("/api/search/:key", async (req, res)=>{
+    let result = await productdb.find({
+        "$or":[
+            {product_name :{$regex:req.params.key}}
+        ]
+    });
+    res.send(result)
+})
+
 
 
 app.listen(1337, ()=>{
