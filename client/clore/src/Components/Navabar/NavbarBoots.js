@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import pic from '../../image/CLORE.png';
+import pic from '../../image/L&A.png';
 import accountIcon from '../../icons/account.svg';
 import cartIcon from '../../icons/cart.svg';
 import { useNavigate, NavLink } from 'react-router-dom';
@@ -21,9 +21,9 @@ const NavbarBoots = (props) => {
         props.onFilterDataSubmitHandler(searchKey)
     }
 
-    useEffect(()=>{
-        props.onSearchKeyChange(searchKey)   
-    },[searchKey])
+    // useEffect(()=>{
+    //     props.onSearchKeyChange(searchKey)   
+    // },[searchKey])
 
     useEffect(() => {
         setUserId(localStorage.getItem('usersdatatoken'));
@@ -62,10 +62,10 @@ const NavbarBoots = (props) => {
                                     <NavLink className="nav-link text-dark mx-2" aria-current="page" to={"/"}>Home</NavLink>
                                 </li>
                                 <li className="nav-item mt-2">
-                                    <a className="nav-link text-dark mx-2" href="/Shop">Shop</a>
+                                    <NavLink className="nav-link text-dark mx-2" to="/Shop">Shop</NavLink>
                                 </li>
                                 <li className="nav-item mb-2">
-                                    <NavLink className="nav-link" to={"/"}><img src={pic} height={40} width={80} /></NavLink>
+                                    <NavLink className="nav-link" to={"/"}><img src={pic} height={40} width={60} /></NavLink>
                                 </li>
 
                                 <li className="nav-item mt-2">
@@ -122,7 +122,7 @@ const NavbarBoots = (props) => {
                                     <NavLink className="nav-link text-dark mx-2" aria-current="page" to={"/"}>Home</NavLink>
                                 </li>
                                 <li className="nav-item mt-2">
-                                    <a className="nav-link text-dark mx-2" href="/Shop">Shop</a>
+                                    <NavLink className="nav-link text-dark mx-2" to="/Shop">Shop</NavLink>
                                 </li>
                                 <li className="nav-item mb-2">
                                     <NavLink className="nav-link" to={"/"}><img src={pic} height={40} width={80} /></NavLink>

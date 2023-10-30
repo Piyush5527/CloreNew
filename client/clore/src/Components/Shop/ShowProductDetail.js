@@ -60,14 +60,15 @@ const ShowProductDetail = () => {
     <Fragment>
       <NavbarBoots></NavbarBoots>
       <div className='main_container'>
-        <h1 className={styles.header}>Product Details</h1>
+        {/* <h1 className={styles.header}>Product Details</h1> */}
         <div className={`${styles.main_container} ${styles.left}`}>
           {/* style={{ width: "500px", textAlign: "center", margin: "auto", height: "500px" }} */}
           <img className={styles.productImage} variant="top" src={`http://localhost:1337/productImages/${list.image1}`} />
           {/* <br></br> */}
         </div>
         <div className={`${styles.main_container} ${styles.right}`}>
-          <table className="table table-bordered">
+        <h2><b>{list.product_name}</b></h2>
+          <table className="table table-bordered mt-5">
             <tr>
               <th colSpan={2} style={{textAlign:'center'}}>Basic Details</th>
             </tr>

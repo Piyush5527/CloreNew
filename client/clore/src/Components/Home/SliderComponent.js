@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import '../../CSS/Home/SliderComponent.css';
-import slide1 from '../../image/slide-1.jpg';
+import slide1 from '../../image/slide-1.png';
 import slide2 from '../../image/slide-2.jpg';
-import slide3 from '../../image/slide-3.jpg';
+import slide3 from '../../image/slide-3.jpeg';
 import slide4 from '../../image/slide-4.jpg';
 
 
@@ -13,19 +13,19 @@ export const SliderComponent = () => {
                 <div className="slider">
                     <div className="slides">
                         <div id="slides__1" className="slide">
-                            <span className='image_text'> Great Lookbook 2K22 </span>
-                            <img src={slide1} className="slider_image" />
+                            {/* <span className='image_text'> Great Lookbook 2K22 </span> */}
+                            <img src={slide2} className="slider_image" />
                             <a className="slide__prev" href="#slides__4" title="Next"></a>
                             <a className="slide__next" href="#slides__2" title="Next"></a>
                         </div>
                         <div id="slides__2" className="slide">
-                            <span className='image_text'> Stylish Coats </span>
-                            <img src={slide2} className="slider_image" />
+                            {/* <span className='image_text'> Stylish Coats </span> */}
+                            <img src={slide1} className="slider_image" />
                             <a className="slide__prev" href="#slides__1" title="Prev"></a>
                             <a className="slide__next" href="#slides__3" title="Next"></a>
                         </div>
                         <div id="slides__3" className="slide">
-                            <span className='image_text'>Trendy Collection</span>
+                            {/* <span className='image_text'>Trendy Collection</span> */}
                             <img src={slide3} className="slider_image" />
                             <a className="slide__prev" href="#slides__2" title="Prev"></a>
                             <a className="slide__next" href="#slides__4" title="Next"></a>
